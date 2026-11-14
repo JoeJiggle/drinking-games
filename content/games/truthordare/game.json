@@ -1,0 +1,8 @@
+{
+  "_info": "Platzhalter für einen späteren Spielmodus (status 'soon' in js/games/registry.js).",
+  "icon": "🎯",
+  "color": "#2f9e44",
+  "color2": "#087f5b",
+  "name": { "de": "Wahrheit oder Pflicht", "en": "Truth or Dare" },
+  "tagline": { "de": "Ehrlich antworten oder Mut beweisen", "en": "Spill the truth or take the dare" }
+}

@@ -1,0 +1,55 @@
+{
+  "_info": "Beschreibung des Spiels. Alle Texte auf Deutsch (de) und Englisch (en). Farben als #rrggbb, color2 ist die dunklere Verlaufsfarbe.",
+  "icon": "🙊",
+  "color": "#7048e8",
+  "color2": "#ae3ec9",
+  "minPlayers": 2,
+  "name": { "de": "Ich hab noch nie", "en": "Never Have I Ever" },
+  "tagline": { "de": "Wer's schon getan hat, trinkt.", "en": "Done it? Drink." },
+  "rules": {
+    "de": "Lest die Aussage vor. Wer es schon mal getan hat, trinkt einen Schluck. Zwischendurch kommen Sonderkarten mit euren Namen.",
+    "en": "Read the statement out loud. Anyone who has done it takes a sip. Every now and then a special card calls you out by name."
+  },
+  "categories": [
+    {
+      "id": "mild",
+      "icon": "😇",
+      "color": "#12b886",
+      "color2": "#0b7285",
+      "default": true,
+      "name": { "de": "Harmlos", "en": "Mild" },
+      "desc": { "de": "Alltäglich, peinlich, lustig", "en": "Everyday, awkward, funny" }
+    },
+    {
+      "id": "party",
+      "icon": "🪩",
+      "color": "#f76707",
+      "color2": "#c92a2a",
+      "default": true,
+      "name": { "de": "Party", "en": "Party" },
+      "desc": { "de": "Feiern, Ausgehen, Dating, wilde Abende", "en": "Nights out, dating, wild evenings" }
+    },
+    {
+      "id": "spicy",
+      "icon": "🌶️",
+      "color": "#e64980",
+      "color2": "#7b1240",
+      "name": { "de": "Spicy", "en": "Spicy" },
+      "desc": { "de": "Sex, Flirten, Fantasien – frech und direkt", "en": "Sex, flirting, fantasies – cheeky and direct" }
+    }
+  ],
+  "themes": {
+    "special": {
+      "icon": "⭐",
+      "color": "#4c6ef5",
+      "color2": "#5f3dc4",
+      "label": { "de": "Sonderkarte", "en": "Special card" }
+    },
+    "spicySpecial": {
+      "icon": "🔥",
+      "color": "#d6336c",
+      "color2": "#5c0a2e",
+      "label": { "de": "Spicy-Challenge", "en": "Spicy challenge" }
+    }
+  }
+}

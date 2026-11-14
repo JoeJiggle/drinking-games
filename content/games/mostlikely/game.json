@@ -1,0 +1,8 @@
+{
+  "_info": "Platzhalter für einen späteren Spielmodus (status 'soon' in js/games/registry.js).",
+  "icon": "🗳️",
+  "color": "#1c7ed6",
+  "color2": "#3b5bdb",
+  "name": { "de": "Wer würde eher …?", "en": "Who's Most Likely To…?" },
+  "tagline": { "de": "Zeigt aufeinander und stimmt ab", "en": "Point, vote and drink" }
+}

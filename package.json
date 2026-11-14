@@ -1,0 +1,12 @@
+{
+  "name": "drinking-games",
+  "private": true,
+  "type": "module",
+  "description": "DrinkingGames – private PWA mit Trinkspielen. npm wird nur für Hilfsskripte genutzt, die App selbst hat keine Abhängigkeiten.",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "test": "node --test tests/",
+    "icons": "node scripts/make-icons.mjs",
+    "check": "node scripts/check-pwa.mjs"
+  }
+}
