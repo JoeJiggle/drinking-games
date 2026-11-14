@@ -29,7 +29,7 @@ for (const id of games) {
   });
 }
 
-function checkCards(file, cards, categories) {
+function checkCards(file, cards, categories, defaultPlayers = 0) {
   const ids = new Set();
   for (const card of cards) {
     assert.ok(card.id, `${file}: Karte ohne id`);
@@ -40,9 +40,11 @@ function checkCards(file, cards, categories) {
       assert.ok(typeof card[l] === 'string' && card[l].trim(), `${card.id}: Text ${l} fehlt`);
       const info = inspectText(card[l]);
       assert.deepEqual(info.errors, [], `${card.id} (${l}): ${info.errors.join(', ')}`);
-      assert.ok(info.maxPlayer <= (card.players || 0), `${card.id} (${l}): braucht {p${info.maxPlayer}}, aber players = ${card.players || 0}`);
+      const players = card.players || defaultPlayers;
+      assert.ok(info.maxPlayer <= players, `${card.id} (${l}): braucht {p${info.maxPlayer}}, aber players = ${players}`);
     }
-    if (card.slots) assert.ok(card.slots.length <= (card.players || 0), `${card.id}: mehr slots als players`);
+    if (card.slots) assert.ok(card.slots.length <= (card.players || defaultPlayers), `${card.id}: mehr slots als players`);
+    if (card.timer !== undefined) assert.ok(Number.isInteger(card.timer) && card.timer > 0, `${card.id}: ungültiger timer`);
   }
   return ids;
 }
@@ -65,6 +67,26 @@ test('„Ich hab noch nie“: genug Sonderkarten, Spicy-Karten mit zwei Personen
   assert.ok(general.length >= 20, `nur ${general.length} allgemeine Sonderkarten`);
   assert.ok(spicy.length >= 20, `nur ${spicy.length} Spicy-Sonderkarten`);
   assert.ok(spicy.every((c) => c.players === 2), 'Spicy-Sonderkarten brauchen zwei Personen');
+});
+
+test('„Wahrheit oder Pflicht“: je 40 Wahrheiten und Pflichten pro Kategorie, alles zweisprachig', () => {
+  const meta = json('content/games/truthordare/game.json');
+  for (const key of ['choice', 'forced', 'truth', 'dare', 'done', 'refused', 'drink'])
+    for (const l of LANGS) assert.ok(meta.texts[key]?.[l], `texts.${key}.${l}`);
+  for (const [key, s] of Object.entries(meta.stats))
+    for (const l of LANGS) assert.ok(s.title[l] && s.count[l].one && s.count[l].other, `stats.${key}.${l}`);
+
+  const cats = ['mild', 'party', 'spicy'];
+  const truths = json('content/games/truthordare/truths.json').cards;
+  const dares = json('content/games/truthordare/dares.json').cards;
+  const ids = [...checkCards('truths.json', truths, cats, 1), ...checkCards('dares.json', dares, cats, 1)];
+  assert.equal(new Set(ids).size, ids.length, 'doppelte ids zwischen Wahrheiten und Pflichten');
+  for (const cat of cats) {
+    for (const [name, list] of [['Wahrheiten', truths], ['Pflichten', dares]]) {
+      const n = list.filter((c) => c.cat === cat).length;
+      assert.ok(n >= 40, `${cat}: nur ${n} ${name}`);
+    }
+  }
 });
 
 test('Service Worker: Cache-Name passt zu APP_VERSION und alle App-Dateien sind eingetragen', () => {

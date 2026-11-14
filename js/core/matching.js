@@ -38,25 +38,36 @@ export function createMatcher(players, rng = Math.random, { mixedShare = 0.8 } =
     return weightedPick(pool, weights, rng);
   }
 
-  function pick({ count = 0, slots = [], mixed = false } = {}) {
+  // `fixed`: Personen, die schon feststehen (z. B. wer gerade dran ist) – sie belegen die ersten Plätze
+  function pick({ count = 0, slots = [], mixed = false, fixed = [] } = {}) {
     if (count === 0) return [];
     if (players.length < count) return null;
     const want = Array.from({ length: count }, (_, i) => slots[i] || 'any');
+    if (fixed.some((p, i) => want[i] !== 'any' && p.gender !== want[i])) return null;
+    const chosen = new Array(count);
     const taken = new Set();
+    fixed.forEach((p, i) => {
+      chosen[i] = p;
+      taken.add(p.id);
+    });
     const free = (g) => players.filter((p) => !taken.has(p.id) && (g === 'any' || p.gender === g));
-    let chosen;
 
     if (mixed && count === 2 && want.every((s) => s === 'any')) {
-      const a = choose(free('any'));
-      taken.add(a.id);
-      const preferred = free(rng() < mixedShare ? other(a.gender) : a.gender);
-      const b = choose(preferred.length ? preferred : free('any'));
-      chosen = [a, b];
+      if (!chosen[0]) {
+        chosen[0] = choose(free('any'));
+        taken.add(chosen[0].id);
+      }
+      if (!chosen[1]) {
+        const preferred = free(rng() < mixedShare ? other(chosen[0].gender) : chosen[0].gender);
+        chosen[1] = choose(preferred.length ? preferred : free('any'));
+      }
     } else {
       // Plätze mit festem Geschlecht zuerst besetzen, die Reihenfolge der Plätze bleibt erhalten
-      chosen = new Array(count);
-      const order = want.map((_, i) => i).sort((i, j) => (want[i] === 'any') - (want[j] === 'any'));
-      for (const i of order) {
+      const open = want
+        .map((_, i) => i)
+        .filter((i) => !chosen[i])
+        .sort((i, j) => (want[i] === 'any') - (want[j] === 'any'));
+      for (const i of open) {
         const candidates = free(want[i]);
         if (!candidates.length) return null;
         chosen[i] = choose(candidates);
@@ -64,7 +75,7 @@ export function createMatcher(players, rng = Math.random, { mixedShare = 0.8 } =
       }
     }
 
-    for (const p of chosen) picks.set(p.id, picks.get(p.id) + 1);
+    for (const p of chosen.slice(fixed.length)) picks.set(p.id, picks.get(p.id) + 1);
     previous = new Set(chosen.map((p) => p.id));
     return chosen;
   }

@@ -1,8 +1,73 @@
 {
-  "_info": "Platzhalter für einen späteren Spielmodus (status 'soon' in js/games/registry.js).",
+  "_info": "Beschreibung von „Wahrheit oder Pflicht“. Alle Texte auf Deutsch (de) und Englisch (en). penalty = Schlucke beim Verweigern. texts = Beschriftungen im Spiel, {p1} = Person, die dran ist, {n} = Anzahl Schlucke. stats = Rückblick am Ende.",
   "icon": "🎯",
   "color": "#2f9e44",
   "color2": "#087f5b",
+  "minPlayers": 2,
   "name": { "de": "Wahrheit oder Pflicht", "en": "Truth or Dare" },
-  "tagline": { "de": "Ehrlich antworten oder Mut beweisen", "en": "Spill the truth or take the dare" }
+  "tagline": { "de": "Ehrlich antworten oder Mut beweisen", "en": "Spill the truth or take the dare" },
+  "rules": {
+    "de": "Reihum wählt jede Person Wahrheit oder Pflicht. Wer kneift, trinkt – 2 Schlucke bei Wahrheit, 3 bei Pflicht. Nach zweimal Wahrheit hintereinander ist Pflicht dran.",
+    "en": "Take turns choosing truth or dare. Chicken out and you drink – 2 sips for a truth, 3 for a dare. After two truths in a row, it has to be a dare."
+  },
+  "penalty": { "truth": 2, "dare": 3 },
+  "categories": [
+    {
+      "id": "mild",
+      "icon": "😇",
+      "color": "#12b886",
+      "color2": "#0b7285",
+      "default": true,
+      "name": { "de": "Harmlos", "en": "Mild" },
+      "desc": { "de": "Lustig, peinlich, für jede Runde", "en": "Funny, awkward, fine for any group" }
+    },
+    {
+      "id": "party",
+      "icon": "🪩",
+      "color": "#f76707",
+      "color2": "#c92a2a",
+      "default": true,
+      "name": { "de": "Party", "en": "Party" },
+      "desc": { "de": "Feiern, Dating, Handy-Geheimnisse", "en": "Nights out, dating, phone secrets" }
+    },
+    {
+      "id": "spicy",
+      "icon": "🌶️",
+      "color": "#e64980",
+      "color2": "#7b1240",
+      "name": { "de": "Spicy", "en": "Spicy" },
+      "desc": { "de": "Sex, Flirten, Körperkontakt – frech und direkt", "en": "Sex, flirting, getting close – cheeky and direct" }
+    }
+  ],
+  "themes": {
+    "choice": {
+      "icon": "🎯",
+      "color": "#2f9e44",
+      "color2": "#087f5b",
+      "label": { "de": "Du bist dran", "en": "Your turn" }
+    }
+  },
+  "texts": {
+    "choice": { "de": "{p1}, Wahrheit oder Pflicht?", "en": "{p1}, truth or dare?" },
+    "forced": { "de": "{p1}, zweimal Wahrheit reicht – jetzt ist Pflicht dran!", "en": "{p1}, two truths in a row is enough – it's dare time!" },
+    "truth": { "de": "Wahrheit", "en": "Truth" },
+    "dare": { "de": "Pflicht", "en": "Dare" },
+    "done": { "de": "Geschafft", "en": "Done" },
+    "refused": { "de": "Verweigert", "en": "Refuse" },
+    "drink": { "de": "trink {n}", "en": "drink {n}" }
+  },
+  "stats": {
+    "dare": {
+      "title": { "de": "Mutigste Person", "en": "Bravest player" },
+      "count": { "de": { "one": "1 Pflicht", "other": "{n} Pflichten" }, "en": { "one": "1 dare", "other": "{n} dares" } }
+    },
+    "truth": {
+      "title": { "de": "Offenes Buch", "en": "Open book" },
+      "count": { "de": { "one": "1 Wahrheit", "other": "{n} Wahrheiten" }, "en": { "one": "1 truth", "other": "{n} truths" } }
+    },
+    "refused": {
+      "title": { "de": "Am häufigsten gekniffen", "en": "Biggest chicken" },
+      "count": { "de": { "one": "1-mal", "other": "{n}-mal" }, "en": { "one": "once", "other": "{n} times" } }
+    }
+  }
 }

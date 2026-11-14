@@ -28,6 +28,7 @@ export function createSession({ content, players, categories, rng = Math.random 
   let untilSpecial = specialGap(rng);
   let specialDeck = [];
   let lastSpecialId = null;
+  let done = false;
 
   function drawSpecial() {
     if (!pool.length) return null;
@@ -62,7 +63,10 @@ export function createSession({ content, players, categories, rng = Math.random 
       untilSpecial = specialGap(rng);
     }
     if (!card) {
-      if (shown >= deck.length) return null;
+      if (shown >= deck.length) {
+        done = true;
+        return null;
+      }
       const c = deck[shown++];
       untilSpecial--;
       card = { kind: 'statement', id: c.id, theme: c.cat, text: { de: c.de, en: c.en }, players: [], number: shown };
@@ -82,5 +86,6 @@ export function createSession({ content, players, categories, rng = Math.random 
     total: deck.length,
     canGoBack: () => pos > 0,
     played: () => history.length,
+    finished: () => done,
   };
 }

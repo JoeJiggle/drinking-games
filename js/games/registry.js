@@ -7,9 +7,9 @@
 
 export const GAMES = [
   { id: 'never', status: 'active', load: () => import('./never/game.js') },
+  { id: 'truthordare', status: 'active', load: () => import('./truthordare/game.js') },
   { id: 'partymix', status: 'soon' },
   { id: 'mostlikely', status: 'soon' },
-  { id: 'truthordare', status: 'soon' },
 ];
 
 const base = (id) => `content/games/${id}/`;

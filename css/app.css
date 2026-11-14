@@ -713,8 +713,94 @@ svg {
   transition: transform 0.12s;
 }
 .btn-next:active,
-.btn-back:active:not(:disabled) {
+.btn-back:active:not(:disabled),
+.btn-action:active:not(:disabled) {
   transform: scale(0.96);
+}
+.game-bottom.has-actions .btn-back {
+  width: 62px;
+}
+.btn-action {
+  flex: 1;
+  min-width: 0;
+  min-height: 66px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  transition: transform 0.12s, opacity 0.2s;
+}
+.btn-action small {
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.act-truth {
+  background: linear-gradient(135deg, #339af0, #1864ab);
+}
+.act-dare {
+  background: linear-gradient(135deg, #ff6b6b, #c92a2a);
+}
+.act-primary {
+  background: #fff;
+  color: #1a1230;
+}
+.act-secondary {
+  background: rgba(255, 255, 255, 0.13);
+}
+.btn-action:disabled {
+  opacity: 0.25;
+}
+.btn-action[aria-pressed='false'] {
+  opacity: 0.4;
+}
+.btn-action[aria-pressed='true'] {
+  box-shadow: 0 0 0 3px #fff inset;
+}
+.card-who {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.card-timer {
+  align-self: flex-start;
+  margin-top: 24px;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.card-timer.running {
+  background: #fff;
+  color: #1a1230;
+}
+.card-timer.done {
+  background: #ffe066;
+  color: #1a1230;
+}
+.card.nudge {
+  animation: nudge 0.4s;
+}
+@keyframes nudge {
+  20% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+  80% {
+    transform: translateX(-4px);
+  }
 }
 
 /* Pause-Menü */
@@ -802,6 +888,42 @@ svg {
 }
 .end-actions .btn-next {
   width: 100%;
+}
+.stats {
+  list-style: none;
+  width: 100%;
+  max-width: 420px;
+  margin: 26px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+.stats li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.stat-title {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+.stat-names {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff3bf;
+}
+.stat-count {
+  align-self: center;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
 }
 @keyframes pop {
   from {

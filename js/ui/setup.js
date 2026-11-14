@@ -86,6 +86,7 @@ export async function startGame() {
   }
   const session = game.module.createSession({
     content: game.content,
+    meta: game.meta,
     players: getPlayers().map((p) => ({ ...p })),
     categories: [...selection(game)],
   });

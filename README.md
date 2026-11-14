@@ -2,7 +2,11 @@
 
 Private Party-PWA mit Trinkspielen für das iPhone. Reines HTML, CSS und JavaScript ohne Build-Schritt: Die Dateien im Repository sind direkt die fertige App. Kein Konto, keine Cloud, kein Tracking, keine externen Abfragen.
 
-Aktuell spielbar: **Ich hab noch nie / Never Have I Ever** (Kategorien Harmlos, Party, Spicy, mit Sonderkarten). Weitere Spiele sind als „Bald verfügbar“ vorbereitet.
+Aktuell spielbar:
+- **Ich hab noch nie / Never Have I Ever** – Kategorien Harmlos, Party, Spicy, mit Sonderkarten
+- **Wahrheit oder Pflicht / Truth or Dare** – reihum, Verweigern kostet 2 bzw. 3 Schlucke, nach zweimal Wahrheit ist Pflicht dran, Countdown bei Aufgaben mit Zeitlimit, Rückblick am Ende
+
+Weitere Spiele sind als „Bald verfügbar“ vorbereitet.
 
 ## Aufbau
 
@@ -21,11 +25,14 @@ js/core/                                  Logik ohne DOM (mit Node getestet)
   random.js                               Mischen und Zufall
 js/games/registry.js                      Liste aller Spiele
 js/games/never/game.js                    Spiellogik „Ich hab noch nie“
+js/games/truthordare/game.js              Spiellogik „Wahrheit oder Pflicht“
 js/ui/                                    gemeinsame Bausteine der Oberfläche
 content/ui.de.json, ui.en.json            alle Oberflächentexte
 content/games/<spiel>/game.json           Name, Farbe, Icon, Regel, Kategorien
 content/games/never/cards.json            Aussagen
 content/games/never/specials.json         Sonderkarten
+content/games/truthordare/truths.json     Wahrheits-Fragen
+content/games/truthordare/dares.json      Pflicht-Aufgaben
 scripts/                                  Hilfsskripte (Server, Icons, Browser-Test)
 tests/                                    automatische Tests
 ```
@@ -61,12 +68,22 @@ Sonderkarten in `specials.json`:
 | `needs: {"f": 1, "m": 1}` | Karte nur, wenn so viele Frauen/Männer mitspielen |
 | `slots: ["f", "any"]` | Person 1 muss eine Frau sein, Person 2 beliebig |
 
+### Wahrheit oder Pflicht
+
+Wahrheiten in `truths.json`, Pflichten in `dares.json`. Die Aufgabe richtet sich immer an die Person, die dran ist (`{p1}`). Mit `"players": 2` wählt die App eine zweite Person `{p2}` aus, mit `"timer": 30` erscheint ein Countdown-Knopf auf der Karte:
+
+```json
+{ "id": "d-party-41", "cat": "party", "players": 2, "timer": 30, "de": "Tanz 30 Sekunden mit {p2}.", "en": "Dance with {p2} for 30 seconds." }
+```
+
+Schlucke beim Verweigern, Beschriftungen und der Rückblick stehen in `content/games/truthordare/game.json`.
+
 Nach dem Ändern `node --test tests/` ausführen: Der Test meldet fehlende Übersetzungen, doppelte ids und Tippfehler in Platzhaltern.
 
 ## Neues Spiel hinzufügen
 
 1. Ordner `content/games/<id>/` mit `game.json` (Name, Tagline, Regel, Farben, Icon – jeweils `de` und `en`) und eigenen Kartendateien.
-2. Spiellogik in `js/games/<id>/game.js` mit `loadContent(base)` und `createSession({ content, players, categories })`. Die Sitzung liefert `next()`, `prev()`, `total`, `canGoBack()` und `played()`; jede Karte hat `theme`, `text: { de, en }` und `players`. Dann übernimmt die gemeinsame Kartenanzeige alles Weitere (Wischen, Fortschritt, Pause, Ende-Bildschirm, Sprachwechsel).
+2. Spiellogik in `js/games/<id>/game.js` mit `loadContent(base)` und `createSession({ content, players, categories })`. Die Sitzung liefert `next()`, `prev()`, `total`, `canGoBack()` und `played()`; jede Karte hat `theme`, `text: { de, en }` und `players`. Dann übernimmt die gemeinsame Kartenanzeige alles Weitere (Wischen, Fortschritt, Pause, Ende-Bildschirm, Sprachwechsel). Optional: Karten mit `actions` (eigene Knöpfe, ausgelöst über `act(id)`), `timer`, `round` und ein `summary()` für den Rückblick – siehe `js/ui/play.js` und das Beispiel „Wahrheit oder Pflicht“.
 3. In `js/games/registry.js` eintragen bzw. von `soon` auf `active` stellen.
 4. Neue Dateien in `sw.js` eintragen, Versionen erhöhen (siehe unten).
 

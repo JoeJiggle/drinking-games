@@ -211,6 +211,44 @@ try {
   await shot('08-ende');
   await click('[data-act=hub]');
 
+  // Wahrheit oder Pflicht
+  await click('[data-game=truthordare]');
+  await waitFor('!!document.getElementById("start")', 'Setup Wahrheit oder Pflicht');
+  await click('[data-cat=spicy]');
+  await click('#start');
+  await waitFor('!!document.querySelector("[data-action=truth]")', 'Wahl-Karte');
+  await shot('10-wahl');
+  const actions = ['truth', 'done', 'dare', 'refused', 'truth', 'done', 'truth', 'done', 'dare', 'done', 'dare', 'done'];
+  for (const a of actions) {
+    await click(`[data-action=${a}]`);
+    await sleep(80);
+    if (a === 'dare') {
+      const timer = await evaluate('!!document.querySelector("#stage .card:not(.leaving) .card-timer")');
+      if (timer) {
+        await click('#stage .card:not(.leaving) .card-timer');
+        await sleep(1100);
+        await shot('12-timer');
+      }
+    }
+    if (a === 'truth' && !(await evaluate('!!globalThis.__shotTask'))) {
+      await evaluate('globalThis.__shotTask = true');
+      await shot('11-wahrheit');
+    }
+  }
+  log(`Runde: ${await text('#progress')}`);
+  // Anna hatte zweimal Wahrheit? Die Logik ist per Unit-Test abgedeckt; hier nur: Zurück zeigt die gewählte Aktion
+  await click('[data-act=prev]');
+  await sleep(400);
+  const pressed = await evaluate('!!document.querySelector("[data-action][aria-pressed=true]")');
+  if (!pressed) problems.push('Zurückgeblätterte Karte zeigt die getroffene Wahl nicht');
+  await click('[data-act=pause]');
+  await click('[data-act=quit]');
+  await waitFor('document.getElementById("app").dataset.view === "end"', 'Ende Wahrheit oder Pflicht');
+  const stats = await evaluate('document.querySelectorAll(".stats li").length');
+  if (!stats) problems.push('Kein Rückblick am Ende');
+  await shot('13-rueckblick');
+  await click('[data-act=hub]');
+
   // Offline: Server stoppen und neu laden
   if (server) {
     server.kill();

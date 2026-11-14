@@ -55,8 +55,12 @@
   "game.quit": "Spiel beenden",
   "game.progress": "{n} / {total}",
   "game.swipeHint": "Tippen oder nach links wischen für die nächste Karte",
+  "game.round": "Runde {n}",
+  "game.timerStart": "{n} Sekunden starten",
+  "game.timeUp": "⏰ Zeit um!",
 
   "end.title": "Alle Karten gespielt!",
+  "end.quitTitle": "Spiel beendet",
   "end.count.one": "1 Karte in dieser Runde",
   "end.count.other": "{n} Karten in dieser Runde",
   "end.again": "Nochmal spielen",

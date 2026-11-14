@@ -81,6 +81,21 @@ test('feste Geschlechter pro Platz werden eingehalten', () => {
   assert.equal(m.pick({ count: 2, slots: ['f', 'f'] }), null);
 });
 
+test('feste Person bleibt auf Platz 1, Partner wird passend ergänzt', () => {
+  const players = group('mmmfff');
+  const m = createMatcher(players, seededRng(9));
+  let mixedPairs = 0;
+  for (let i = 0; i < 2000; i++) {
+    const active = players[i % players.length];
+    const [a, b] = m.pick({ count: 2, mixed: true, fixed: [active] });
+    assert.equal(a, active);
+    assert.notEqual(b.id, active.id);
+    if (a.gender !== b.gender) mixedPairs++;
+  }
+  assert.ok(mixedPairs / 2000 > 0.75 && mixedPairs / 2000 < 0.85);
+  assert.equal(m.pick({ count: 2, slots: ['f'], fixed: [players[0]] }), null);
+});
+
 test('canFill prüft Personenzahl, Geschlechter und Plätze', () => {
   const players = group('mmf');
   assert.ok(canFill(players, { players: 3 }));

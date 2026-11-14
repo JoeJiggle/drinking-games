@@ -55,8 +55,12 @@
   "game.quit": "End game",
   "game.progress": "{n} / {total}",
   "game.swipeHint": "Tap or swipe left for the next card",
+  "game.round": "Round {n}",
+  "game.timerStart": "Start {n} seconds",
+  "game.timeUp": "⏰ Time's up!",
 
   "end.title": "That's all the cards!",
+  "end.quitTitle": "Game over",
   "end.count.one": "1 card this round",
   "end.count.other": "{n} cards this round",
   "end.again": "Play again",
