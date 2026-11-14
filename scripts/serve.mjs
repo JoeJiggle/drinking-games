@@ -41,5 +41,5 @@ createServer(async (req, res) => {
     res.end('Nicht gefunden');
   }
 }).listen(port, () => {
-  console.log(`DrinkingGames läuft auf http://localhost:${port}/`);
+  console.log(`Schwips läuft auf http://localhost:${port}/`);
 });

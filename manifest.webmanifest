@@ -1,6 +1,6 @@
 {
-  "name": "DrinkingGames",
-  "short_name": "DrinkGames",
+  "name": "Schwips",
+  "short_name": "Schwips",
   "description": "Trinkspiele für eure Runde",
   "start_url": "./",
   "scope": "./",

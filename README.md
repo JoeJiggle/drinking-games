@@ -1,6 +1,6 @@
-# DrinkingGames
+# Schwips
 
-Private Party-PWA mit Trinkspielen für das iPhone. Reines HTML, CSS und JavaScript ohne Build-Schritt: Die Dateien im Repository sind direkt die fertige App. Kein Konto, keine Cloud, kein Tracking, keine externen Abfragen.
+Private Party-PWA mit Trinkspielen für das iPhone (früher „DrinkingGames“; Repository-Name, Adresse sowie die internen Namen von Datenbank und Cache sind absichtlich gleich geblieben). Reines HTML, CSS und JavaScript ohne Build-Schritt: Die Dateien im Repository sind direkt die fertige App. Kein Konto, keine Cloud, kein Tracking, keine externen Abfragen.
 
 Aktuell spielbar:
 - **Ich hab noch nie / Never Have I Ever** – Kategorien Harmlos, Party, Spicy, mit Sonderkarten

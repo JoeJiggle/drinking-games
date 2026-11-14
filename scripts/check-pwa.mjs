@@ -174,9 +174,9 @@ try {
   for (let i = 0; i < 12 && !special; i++) {
     await click('[data-act=next]');
     await sleep(60);
-    special = await evaluate('!!document.querySelector("#stage .card:not(.leaving) .pname")');
+    special = await evaluate('/Sonderkarte|Spicy-Challenge/.test(document.querySelector("#stage .card:not(.leaving) .card-label")?.textContent)');
   }
-  if (!special) problems.push('Keine Sonderkarte mit Namen innerhalb von 12 Karten');
+  if (!special) problems.push('Keine Sonderkarte innerhalb von 12 Karten');
   await shot('05-sonderkarte');
   log(`Fortschritt: ${await text('#progress')}`);
 
