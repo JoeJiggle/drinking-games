@@ -8,6 +8,10 @@ Aktuell spielbar:
 
 Weitere Spiele sind als „Bald verfügbar“ vorbereitet.
 
+Die App startet auf Englisch; die Flagge oben im Hub wechselt die Sprache.
+
+**Einstellungen:** Bildschirm anlassen, Spicy ausblenden, Trinkstärke (rechnet alle Schluckzahlen um), Spicy-Paare, Spieloptionen pro Spiel, Design hell/dunkel/automatisch, große Schrift, Animationen reduzieren, eigene Karten (mit Sicherung als Datei), aussortierte Karten zurücksetzen, nach Updates suchen, alles zurücksetzen.
+
 ## Aufbau
 
 ```
@@ -57,6 +61,10 @@ Sonderkarten in `specials.json`:
 |---|---|
 | `{p1}`, `{p2}` | Name der 1. bzw. 2. Person |
 | `{p1:er\|sie}` | Wortform je nach Geschlecht: links männlich, rechts weiblich (z. B. `{p2:ihm\|ihr}`, `{p1:der Jüngste\|die Jüngste}`, `{p1:him\|her}`) |
+| `{s:2}` | Anzahl Schlucke – wird mit der Trinkstärke umgerechnet (leicht ≈ halb, hart ≈ anderthalbfach) |
+| `{s:3\|Schluck\|Schlucke}` | Anzahl mit passender Einzahl/Mehrzahl, z. B. „1 Schluck“ / „5 Schlucke“ |
+
+Schluckzahlen in Karten daher immer als `{s:…}` schreiben, nicht als feste Zahl.
 
 ### Angaben pro Sonderkarte
 
@@ -85,6 +93,12 @@ Nach dem Ändern `node --test tests/` ausführen: Der Test meldet fehlende Über
 1. Ordner `content/games/<id>/` mit `game.json` (Name, Tagline, Regel, Farben, Icon – jeweils `de` und `en`) und eigenen Kartendateien.
 2. Spiellogik in `js/games/<id>/game.js` mit `loadContent(base)` und `createSession({ content, players, categories })`. Die Sitzung liefert `next()`, `prev()`, `total`, `canGoBack()` und `played()`; jede Karte hat `theme`, `text: { de, en }` und `players`. Dann übernimmt die gemeinsame Kartenanzeige alles Weitere (Wischen, Fortschritt, Pause, Ende-Bildschirm, Sprachwechsel). Optional: Karten mit `actions` (eigene Knöpfe, ausgelöst über `act(id)`), `timer`, `round` und ein `summary()` für den Rückblick – siehe `js/ui/play.js` und das Beispiel „Wahrheit oder Pflicht“.
 3. In `js/games/registry.js` eintragen bzw. von `soon` auf `active` stellen.
+
+In `game.json` außerdem möglich (Beispiele in den beiden vorhandenen Spielen):
+- `options`: Einstellungen des Spiels (`choice`, `toggle`, `stepper`) – erscheinen automatisch in den Einstellungen und werden als `options` an `createSession` übergeben
+- `rulesIf`: Regelsatz, der nur bei eingeschalteter Option angezeigt wird
+- `custom`: welche Kartenlisten man in der App mit eigenen Karten ergänzen kann
+- `"adult": true` an einer Kategorie: wird bei „Spicy ausblenden“ versteckt
 4. Neue Dateien in `sw.js` eintragen, Versionen erhöhen (siehe unten).
 
 ## Bei jeder Änderung
@@ -110,4 +124,5 @@ Keine. Alle Kartentexte sind eigene Formulierungen. Der Ordner `vendor/` wird ni
 
 - **Installieren:** Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.
 - **Updates:** App ganz schließen, neu öffnen, unten auf „Neu laden“ tippen.
-- **Daten:** Gespeichert werden nur Sprache und Spielerliste, und zwar nur auf dem Gerät. Wer das Symbol vom Home-Bildschirm löscht, löscht auch diese Daten.
+- **Daten:** Gespeichert werden Sprache, Spielerliste, Einstellungen, eigene und aussortierte Karten – nur auf dem Gerät. Wer das Symbol vom Home-Bildschirm löscht, löscht auch diese Daten.
+- **Sicherung:** Einstellungen → Eigene Karten → „Sichern“ speichert eigene und aussortierte Karten als Datei (z. B. in iCloud Drive), „Wiederherstellen“ liest sie wieder ein (zusammenführen oder ersetzen). Nach 30 Tagen ohne Sicherung erscheint dort ein Hinweis.

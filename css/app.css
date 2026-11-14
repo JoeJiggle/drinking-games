@@ -21,8 +21,9 @@
   --safe-l: env(safe-area-inset-left, 0px);
   --tabbar-h: 62px;
 }
+/* Dunkel: automatisch nach iPhone-Einstellung oder fest über Einstellungen (data-theme) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #110d1f;
     --surface: #1d1731;
     --surface2: #2a2342;
@@ -33,6 +34,24 @@
     --brand: #9775fa;
     --danger: #ff8787;
   }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #110d1f;
+  --surface: #1d1731;
+  --surface2: #2a2342;
+  --text: #f4f0ff;
+  --muted: #a8a0c6;
+  --line: rgba(255, 255, 255, 0.12);
+  --bar: rgba(22, 17, 39, 0.86);
+  --brand: #9775fa;
+  --danger: #ff8787;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+[hidden] {
+  display: none !important;
 }
 
 /* ---------- Grundlayout ---------- */
@@ -58,7 +77,8 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
-input {
+input,
+textarea {
   -webkit-user-select: text;
   user-select: text;
   font: inherit;
@@ -310,6 +330,212 @@ svg {
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.group .seg {
+  background: var(--bg);
+}
+.group .seg button {
+  min-height: 46px;
+  padding: 0 4px;
+  font-size: 16px;
+}
+.group .seg button[aria-pressed='true'] {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* Zeilen in Einstellungen */
+.group > .row + .row {
+  border-top: 1px solid var(--line);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 0;
+  text-align: left;
+}
+.row.column {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+.row-hint {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.row-detail {
+  color: var(--muted);
+}
+.row.link .chev svg {
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+}
+.row.danger {
+  color: var(--danger);
+}
+.switch {
+  flex: none;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 54px;
+  height: 32px;
+  margin: 0;
+  border-radius: 99px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s;
+}
+.switch:checked {
+  background: #37b24d;
+  border-color: transparent;
+}
+.switch:checked::after {
+  transform: translateX(22px);
+}
+.stepper {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg);
+}
+.stepper button {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.stepper button:disabled {
+  opacity: 0.3;
+}
+.stepper output {
+  min-width: 28px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.btn-soft {
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--surface2);
+  color: var(--brand);
+  font-weight: 700;
+}
+.btn-soft.small {
+  flex: none;
+  font-size: 15px;
+}
+.btn-soft:disabled {
+  opacity: 0.45;
+}
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+.warn {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Sprachflagge im Hub */
+.flag-btn {
+  padding: 0;
+}
+.flag-btn svg {
+  width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+}
+
+/* Eigene Karten */
+.group.form {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+.field-label {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.form textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+.form textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+.hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.form .btn-primary {
+  margin-top: 6px;
+}
+.ccard {
+  align-items: flex-start;
+  padding: 12px 6px 12px 14px;
+}
+.ccard-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ccard-meta {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.ccard-text {
+  font-size: 17px;
+  overflow-wrap: break-word;
 }
 
 /* ---------- Spieler ---------- */
@@ -668,6 +894,12 @@ svg {
 .card-text.long {
   font-size: clamp(24px, 7vw, 38px);
 }
+.big-text .card-text {
+  font-size: clamp(34px, 10.4vw, 56px);
+}
+.big-text .card-text.long {
+  font-size: clamp(29px, 8.6vw, 46px);
+}
 .pname {
   color: #fff3bf;
 }
@@ -950,6 +1182,10 @@ svg {
 #app[data-view='end'] ~ #toast-root {
   bottom: calc(var(--safe-b) + 94px);
 }
+#app[data-view='settings'] ~ #toast-root,
+#app[data-view='custom'] ~ #toast-root {
+  bottom: calc(var(--safe-b) + 16px);
+}
 #app[data-view='setup'] ~ #toast-root {
   bottom: calc(var(--safe-b) + 96px);
 }
@@ -993,4 +1229,10 @@ svg {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
 }

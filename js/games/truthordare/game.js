@@ -1,7 +1,7 @@
 // Spiel „Wahrheit oder Pflicht“ – Spiellogik ohne DOM (wird mit Node getestet)
 //
-// Ablauf: Wahl-Karte („Anna, Wahrheit oder Pflicht?“) → Aufgaben-Karte → nächste Person (reihum).
-// Nach zweimal Wahrheit hintereinander muss dieselbe Person Pflicht nehmen.
+// Ablauf: Wahl-Karte („Anna, Wahrheit oder Pflicht?“) → Aufgaben-Karte → nächste Person.
+// Optionen (Einstellungen): Reihenfolge reihum/zufällig, Pflicht nach zweimal Wahrheit, Schlucke beim Verweigern.
 import { shuffle } from '../../core/random.js';
 import { createMatcher, canFill } from '../../core/matching.js';
 
@@ -15,18 +15,24 @@ export async function loadContent(base) {
   return { truths, dares };
 }
 
-const fillN = (obj, n) => Object.fromEntries(Object.entries(obj).map(([l, s]) => [l, s.replace('{n}', n)]));
+const MIXED_SHARE = { mostly: 0.8, always: 1 };
 
-export function createSession({ content, players, categories, meta, rng = Math.random }) {
+// {n} in den Beschriftungen wird zum Schluck-Platzhalter, damit die Trinkstärke greift
+const withSips = (obj, n) => Object.fromEntries(Object.entries(obj).map(([l, s]) => [l, s.replace('{n}', `{s:${n}}`)]));
+
+export function createSession({ content, players, categories, meta, options = {}, rng = Math.random }) {
   const cats = new Set(categories);
   const spicy = cats.has('spicy');
   const texts = meta.texts;
-  const penalty = { truth: 2, dare: 3, ...meta.penalty };
+  const opt = { order: 'turns', forceDare: true, penaltyTruth: 2, penaltyDare: 3, pairing: 'mostly', ...options };
+  const penalty = { truth: opt.penaltyTruth, dare: opt.penaltyDare };
+  const mixedShare = MIXED_SHARE[opt.pairing];
   const usable = (c) => cats.has(c.cat) && canFill(players, { ...c, players: c.players || 1 });
   const pools = { truth: content.truths.filter(usable), dare: content.dares.filter(usable) };
   const decks = { truth: [], dare: [] };
   const lastId = { truth: null, dare: null };
-  const matcher = createMatcher(players, rng);
+  const matcher = createMatcher(players, rng, { mixedShare: mixedShare ?? 0 });
+  const roundOrders = [];
 
   const history = [];
   let pos = -1;
@@ -43,7 +49,7 @@ export function createSession({ content, players, categories, meta, rng = Math.r
       const chosen = matcher.pick({
         count: card.players || 1,
         slots: card.slots,
-        mixed: spicy && card.match === 'mixed',
+        mixed: spicy && card.match === 'mixed' && mixedShare !== undefined,
         fixed: [active],
       });
       if (!chosen) {
@@ -56,8 +62,22 @@ export function createSession({ content, players, categories, meta, rng = Math.r
     return null;
   }
 
+  // Reihenfolge einer Runde: reihum wie in der Spielerliste oder jede Runde neu gemischt
+  function orderOf(round) {
+    if (opt.order !== 'random') return players;
+    while (roundOrders.length <= round) {
+      const order = shuffle(players, rng);
+      const prevRound = roundOrders[roundOrders.length - 1];
+      // Niemand zweimal direkt hintereinander über die Rundengrenze
+      if (prevRound && order.length > 1 && order[0].id === prevRound[prevRound.length - 1].id) order.push(order.shift());
+      roundOrders.push(order);
+    }
+    return roundOrders[round];
+  }
+
   // Muss diese Person Pflicht nehmen? (ihre letzten beiden Wahlen waren Wahrheit)
   function mustDare(playerId) {
+    if (!opt.forceDare) return false;
     const own = history.slice(0, pos + 1).filter((c) => c.kind === 'choice' && c.playerId === playerId);
     const last = own.slice(-2).map((c) => c.outcome);
     return last.length === 2 && last.every((o) => o === 'truth');
@@ -65,13 +85,14 @@ export function createSession({ content, players, categories, meta, rng = Math.r
 
   function choiceCard() {
     const turn = history.slice(0, pos + 1).filter((c) => c.kind === 'choice').length;
-    const active = players[turn % players.length];
+    const round = Math.floor(turn / players.length);
+    const active = orderOf(round)[turn % players.length];
     const forced = mustDare(active.id) && pools.dare.length > 0;
     return {
       kind: 'choice',
       theme: 'choice',
       playerId: active.id,
-      round: Math.floor(turn / players.length) + 1,
+      round: round + 1,
       text: forced ? texts.forced : texts.choice,
       players: [{ name: active.name, gender: active.gender }],
       actions: [
@@ -101,7 +122,7 @@ export function createSession({ content, players, categories, meta, rng = Math.r
       players: chosen.map((p) => ({ name: p.name, gender: p.gender })),
       actions: [
         { id: 'done', label: texts.done, style: 'primary' },
-        { id: 'refused', label: texts.refused, sub: fillN(texts.drink, penalty[type]), style: 'secondary' },
+        { id: 'refused', label: texts.refused, sub: withSips(texts.drink, penalty[type]), style: 'secondary' },
       ],
       outcome: null,
     };
@@ -132,6 +153,18 @@ export function createSession({ content, players, categories, meta, rng = Math.r
     return history[++pos];
   }
 
+  // Aktuelle Aufgabe aussortieren und durch eine neue derselben Art ersetzen
+  function skip() {
+    const card = history[pos];
+    if (card?.kind !== 'task') return null;
+    pools[card.type] = pools[card.type].filter((c) => c.id !== card.id);
+    decks[card.type] = decks[card.type].filter((c) => c.id !== card.id);
+    history.length = pos;
+    pos--;
+    history.push(pools[card.type].length ? taskCard(history[pos], card.type) : choiceCard());
+    return history[++pos];
+  }
+
   function summary() {
     const stats = new Map(players.map((p) => [p.id, { name: p.name, truth: 0, dare: 0, refused: 0 }]));
     for (const c of history) {
@@ -153,6 +186,7 @@ export function createSession({ content, players, categories, meta, rng = Math.r
     next,
     prev,
     act,
+    skip,
     summary,
     total: null,
     canGoBack: () => pos > 0,

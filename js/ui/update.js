@@ -3,6 +3,7 @@ import { t } from '../i18n.js';
 import { showToast } from './toast.js';
 
 let reloadRequested = false;
+let registration = null;
 
 export function initUpdates() {
   if (!('serviceWorker' in navigator)) return;
@@ -17,6 +18,7 @@ export function initUpdates() {
 
   sw.register('sw.js', { updateViaCache: 'none' })
     .then((reg) => {
+      registration = reg;
       if (reg.waiting && sw.controller) offer(reg);
       reg.addEventListener('updatefound', () => {
         const worker = reg.installing;
@@ -30,6 +32,29 @@ export function initUpdates() {
       });
     })
     .catch(() => {});
+}
+
+// Sucht sofort nach einer neuen Version. Ergebnis: 'available' | 'current' | 'offline' | 'unsupported'
+export async function checkForUpdates() {
+  if (!registration) return 'unsupported';
+  try {
+    await registration.update();
+  } catch {
+    return 'offline';
+  }
+  const installing = registration.installing;
+  if (installing) {
+    await new Promise((resolve) => {
+      const done = () => ['installed', 'redundant', 'activated'].includes(installing.state) && resolve();
+      installing.addEventListener('statechange', done);
+      done();
+    });
+  }
+  if (registration.waiting) {
+    offer(registration);
+    return 'available';
+  }
+  return 'current';
 }
 
 function offer(reg) {

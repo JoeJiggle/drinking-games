@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderText, renderParts, inspectText } from '../js/core/placeholders.js';
+import { renderText, renderParts, inspectText, scaleSips } from '../js/core/placeholders.js';
 
 const anna = { name: 'Anna', gender: 'f' };
 const ben = { name: 'Ben', gender: 'm' };
@@ -25,6 +25,21 @@ test('Namen sind als eigene Teile markiert', () => {
     { type: 'name', value: 'Ben' },
     { type: 'text', value: ' küsst sie.' },
   ]);
+});
+
+test('Schlucke werden mit der Trinkstärke umgerechnet', () => {
+  assert.deepEqual([1, 2, 3, 4].map((n) => scaleSips(n, 'light')), [1, 1, 2, 2]);
+  assert.deepEqual([1, 2, 3, 4].map((n) => scaleSips(n, 'normal')), [1, 2, 3, 4]);
+  assert.deepEqual([1, 2, 3, 4].map((n) => scaleSips(n, 'strong')), [2, 3, 5, 6]);
+});
+
+test('Schluck-Platzhalter mit Einzahl/Mehrzahl', () => {
+  const text = '{p1} verteilt {s:2|Schluck|Schlucke} – oder trinkt {s:3}.';
+  assert.equal(renderText(text, [{ name: 'Ben', gender: 'm' }]), 'Ben verteilt 2 Schlucke – oder trinkt 3.');
+  assert.equal(renderText(text, [{ name: 'Ben', gender: 'm' }], { strength: 'light' }), 'Ben verteilt 1 Schluck – oder trinkt 2.');
+  assert.equal(renderText('{s:1|sip|sips}', [], { strength: 'strong' }), '2 sips');
+  assert.deepEqual(inspectText('trink {s:2}'), { maxPlayer: 0, errors: [] });
+  assert.equal(inspectText('trink {s:zwei}').errors.length, 1);
 });
 
 test('erkennt benötigte Personen und Fehler', () => {

@@ -1,5 +1,5 @@
 {
-  "_info": "Beschreibung von „Wahrheit oder Pflicht“. Alle Texte auf Deutsch (de) und Englisch (en). penalty = Schlucke beim Verweigern. texts = Beschriftungen im Spiel, {p1} = Person, die dran ist, {n} = Anzahl Schlucke. stats = Rückblick am Ende.",
+  "_info": "Beschreibung von „Wahrheit oder Pflicht“. Alle Texte auf Deutsch (de) und Englisch (en). rulesIf = Regelsatz, der nur bei eingeschalteter Option erscheint. options = Einstellungen des Spiels. custom = welche eigenen Karten man in der App schreiben kann. texts = Beschriftungen im Spiel, {p1} = Person, die dran ist, {n} = Anzahl Schlucke. stats = Rückblick am Ende.",
   "icon": "🎯",
   "color": "#2f9e44",
   "color2": "#087f5b",
@@ -7,10 +7,66 @@
   "name": { "de": "Wahrheit oder Pflicht", "en": "Truth or Dare" },
   "tagline": { "de": "Ehrlich antworten oder Mut beweisen", "en": "Spill the truth or take the dare" },
   "rules": {
-    "de": "Reihum wählt jede Person Wahrheit oder Pflicht. Wer kneift, trinkt – 2 Schlucke bei Wahrheit, 3 bei Pflicht. Nach zweimal Wahrheit hintereinander ist Pflicht dran.",
-    "en": "Take turns choosing truth or dare. Chicken out and you drink – 2 sips for a truth, 3 for a dare. After two truths in a row, it has to be a dare."
+    "de": "Wer dran ist, wählt Wahrheit oder Pflicht. Wer kneift, trinkt – wie viel, steht auf dem Knopf „Verweigert“.",
+    "en": "Whoever's turn it is picks truth or dare. Chicken out and you drink – the “Refuse” button tells you how much."
   },
-  "penalty": { "truth": 2, "dare": 3 },
+  "rulesIf": {
+    "forceDare": {
+      "de": "Nach zweimal Wahrheit hintereinander ist Pflicht dran.",
+      "en": "After two truths in a row, it has to be a dare."
+    }
+  },
+  "options": [
+    {
+      "key": "order",
+      "type": "choice",
+      "default": "turns",
+      "label": { "de": "Reihenfolge", "en": "Turn order" },
+      "choices": [
+        { "value": "turns", "label": { "de": "Reihum", "en": "In order" } },
+        { "value": "random", "label": { "de": "Zufällig", "en": "Random" } }
+      ]
+    },
+    {
+      "key": "forceDare",
+      "type": "toggle",
+      "default": true,
+      "label": { "de": "Nach zweimal Wahrheit ist Pflicht dran", "en": "Two truths in a row means a dare" }
+    },
+    {
+      "key": "penaltyTruth",
+      "type": "stepper",
+      "min": 1,
+      "max": 6,
+      "default": 2,
+      "label": { "de": "Schlucke für verweigerte Wahrheit", "en": "Sips for refusing a truth" }
+    },
+    {
+      "key": "penaltyDare",
+      "type": "stepper",
+      "min": 1,
+      "max": 6,
+      "default": 3,
+      "label": { "de": "Schlucke für verweigerte Pflicht", "en": "Sips for refusing a dare" }
+    }
+  ],
+  "custom": [
+    {
+      "list": "truths",
+      "maxPlayers": 2,
+      "label": { "de": "Wahrheit", "en": "Truth" },
+      "hint": { "de": "Eine Frage an die Person, die dran ist.", "en": "A question for whoever's turn it is." }
+    },
+    {
+      "list": "dares",
+      "maxPlayers": 2,
+      "label": { "de": "Pflicht", "en": "Dare" },
+      "hint": {
+        "de": "Tipp: {p2} setzt eine zweite Person ein, {p2:ihn|sie} passt sich ihrem Geschlecht an.",
+        "en": "Tip: {p2} adds a second player, {p2:him|her} adapts to their gender."
+      }
+    }
+  ],
   "categories": [
     {
       "id": "mild",
@@ -32,6 +88,7 @@
     },
     {
       "id": "spicy",
+      "adult": true,
       "icon": "🌶️",
       "color": "#e64980",
       "color2": "#7b1240",

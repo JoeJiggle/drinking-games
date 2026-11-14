@@ -1,8 +1,8 @@
-// Startbildschirm: alle Spiele als große Karten
-import { t, pick } from '../i18n.js';
-import { go } from '../router.js';
+// Startbildschirm: alle Spiele als große Karten, Sprachflagge oben
+import { t, pick, LANGS, getLang, setLang } from '../i18n.js';
+import { go, render } from '../router.js';
 import { getGames } from '../games/registry.js';
-import { esc, icons } from './dom.js';
+import { esc, icons, flags } from './dom.js';
 import { shell } from './shell.js';
 import { showToast } from './toast.js';
 
@@ -24,12 +24,22 @@ export function hubView(root) {
     })
     .join('');
 
+  // Die Flagge zeigt die aktuelle Sprache; Tippen wechselt zur anderen
+  const lang = getLang();
+  const other = LANGS.find((l) => l !== lang);
+  const flag = `<button class="icon-btn flag-btn" data-act="lang" aria-label="${esc(t('lang.switch', { lang: t(`lang.${other}`) }))}">${flags[lang]}</button>`;
+
   shell(root, {
     title: t('app.title'),
     tab: 'hub',
+    topExtra: flag,
     body: `<p class="lead">${esc(t('hub.lead'))}</p><div class="game-list">${cards}</div>`,
   });
 
+  root.querySelector('[data-act=lang]').addEventListener('click', () => {
+    setLang(other);
+    render();
+  });
   root.querySelectorAll('[data-game]').forEach((btn) =>
     btn.addEventListener('click', () => {
       const game = getGames().find((g) => g.id === btn.dataset.game);

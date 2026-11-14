@@ -12,20 +12,30 @@ export async function loadContent(base) {
   return { cards, specials };
 }
 
-// Nach wie vielen Aussagen eine Sonderkarte kommt (sie ist dann etwa jede 8.–10. Karte)
-export const specialGap = (rng) => randInt(7, 9, rng);
+// Nach wie vielen Aussagen eine Sonderkarte kommt (normal: etwa jede 8.–10. Karte)
+const GAPS = { rare: [11, 14], normal: [7, 9], often: [3, 5] };
+export const specialGap = (rng, frequency = 'normal') => randInt(...(GAPS[frequency] || GAPS.normal), rng);
 
-export function createSession({ content, players, categories, rng = Math.random }) {
+// Anteil gemischter Paare im Spicy-Preset; 'any' = keine Regel
+export const MIXED_SHARE = { mostly: 0.8, always: 1 };
+
+// options: { specials: 'off'|'rare'|'normal'|'often', pairing: 'mostly'|'always'|'any' }
+export function createSession({ content, players, categories, options = {}, rng = Math.random }) {
   const cats = new Set(categories);
   const spicy = cats.has('spicy');
+  const frequency = options.specials || 'normal';
+  const mixedShare = MIXED_SHARE[options.pairing || 'mostly'];
   const deck = shuffle(content.cards.filter((c) => cats.has(c.cat)), rng);
-  const pool = content.specials.filter((s) => (s.cat === 'spicy' ? spicy : true) && canFill(players, s));
-  const matcher = createMatcher(players, rng);
+  let pool =
+    frequency === 'off'
+      ? []
+      : content.specials.filter((s) => (s.cat === 'spicy' ? spicy : true) && canFill(players, s));
+  const matcher = createMatcher(players, rng, { mixedShare: mixedShare ?? 0 });
 
   const history = [];
   let pos = -1;
   let shown = 0;
-  let untilSpecial = specialGap(rng);
+  let untilSpecial = specialGap(rng, frequency);
   let specialDeck = [];
   let lastSpecialId = null;
   let done = false;
@@ -41,7 +51,7 @@ export function createSession({ content, players, categories, rng = Math.random 
     const chosen = matcher.pick({
       count: card.players || 0,
       slots: card.slots,
-      mixed: spicy && card.match === 'mixed',
+      mixed: spicy && card.match === 'mixed' && mixedShare !== undefined,
     });
     if (!chosen) return null;
     lastSpecialId = card.id;
@@ -60,7 +70,7 @@ export function createSession({ content, players, categories, rng = Math.random 
     let card = null;
     if (untilSpecial <= 0 && shown < deck.length) {
       card = drawSpecial();
-      untilSpecial = specialGap(rng);
+      untilSpecial = specialGap(rng, frequency);
     }
     if (!card) {
       if (shown >= deck.length) {
@@ -80,9 +90,20 @@ export function createSession({ content, players, categories, rng = Math.random 
     return pos > 0 ? history[--pos] : null;
   }
 
+  // Aktuelle Karte aussortieren und weiterblättern
+  function skip() {
+    const card = history[pos];
+    if (card?.kind === 'special') {
+      pool = pool.filter((s) => s.id !== card.id);
+      specialDeck = specialDeck.filter((s) => s.id !== card.id);
+    }
+    return next();
+  }
+
   return {
     next,
     prev,
+    skip,
     total: deck.length,
     canGoBack: () => pos > 0,
     played: () => history.length,

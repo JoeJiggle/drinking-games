@@ -81,7 +81,7 @@
     { "id": "d-party-37", "cat": "party", "players": 2, "de": "{p2} denkt sich eine Challenge für dich aus, die höchstens 30 Sekunden dauert.", "en": "{p2} comes up with a challenge for you that takes no more than 30 seconds." },
     { "id": "d-party-38", "cat": "party", "de": "Sprich bis zu deinem nächsten Zug nur in der dritten Person über dich.", "en": "Talk about yourself only in the third person until your next turn." },
     { "id": "d-party-39", "cat": "party", "players": 2, "de": "Imitiere {p2}, wenn {p2:er|sie} richtig betrunken ist.", "en": "Do an impression of {p2} when {p2:he's|she's} really drunk." },
-    { "id": "d-party-40", "cat": "party", "de": "Trink drei Schlucke am Stück.", "en": "Take three sips in a row." },
+    { "id": "d-party-40", "cat": "party", "de": "Trink {s:3|Schluck|Schlucke} am Stück.", "en": "Take {s:3|sip|sips} in a row." },
 
     { "id": "d-spicy-01", "cat": "spicy", "players": 2, "match": "mixed", "de": "Gib {p2} einen Kuss – wohin, entscheidest du.", "en": "Give {p2} a kiss – you decide where." },
     { "id": "d-spicy-02", "cat": "spicy", "players": 2, "match": "mixed", "de": "Flüstere {p2} etwas Unanständiges ins Ohr.", "en": "Whisper something naughty in {p2}'s ear." },
@@ -122,6 +122,6 @@
     { "id": "d-spicy-37", "cat": "spicy", "players": 2, "match": "mixed", "de": "Flüstere {p2} deine Lieblingsstellung ins Ohr.", "en": "Whisper your favourite position into {p2}'s ear." },
     { "id": "d-spicy-38", "cat": "spicy", "players": 2, "match": "mixed", "timer": 20, "de": "Lass dich 20 Sekunden lang von {p2} massieren – wo, bestimmst du.", "en": "Let {p2} massage you for 20 seconds – you choose where." },
     { "id": "d-spicy-39", "cat": "spicy", "players": 2, "match": "mixed", "de": "Lade {p2} ernsthaft zu einem Date ein – mit Ort, Uhrzeit und Plan.", "en": "Ask {p2} out for real – with a place, a time and a plan." },
-    { "id": "d-spicy-40", "cat": "spicy", "players": 2, "match": "mixed", "de": "Küss {p2} auf den Mund. Wollt ihr beide nicht, trinkt ihr beide 2.", "en": "Kiss {p2} on the lips. If neither of you wants to, you both drink 2." }
+    { "id": "d-spicy-40", "cat": "spicy", "players": 2, "match": "mixed", "de": "Küss {p2} auf den Mund. Wollt ihr beide nicht, trinkt ihr beide {s:2}.", "en": "Kiss {p2} on the lips. If neither of you wants to, you both drink {s:2}." }
   ]
 }

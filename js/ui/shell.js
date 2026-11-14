@@ -8,12 +8,14 @@ const TABS = [
   { view: 'players', key: 'tabs.players', icon: 'people' },
 ];
 
-export function shell(root, { title, onBack, gear = true, tab, body, footer = '', accent }) {
+// topExtra: zusätzliche Knöpfe in der Kopfzeile vor dem Zahnrad (z. B. Sprachflagge im Hub)
+export function shell(root, { title, onBack, gear = true, tab, body, footer = '', accent, topExtra = '' }) {
   const accentStyle = accent ? ` style="--h1:${accent.color};--h2:${accent.color2}"` : '';
   root.innerHTML = `
     <header class="topbar${onBack ? ' has-back' : ''}"${accentStyle}>
       ${onBack ? `<button class="icon-btn" data-act="back" aria-label="${esc(t('common.back'))}">${icons.back}</button>` : ''}
       <h1>${esc(title)}</h1>
+      ${topExtra}
       ${gear ? `<button class="icon-btn" data-act="settings" aria-label="${esc(t('settings.title'))}">${icons.gear}</button>` : ''}
     </header>
     <main class="content${tab ? ' with-tabs' : ''}${footer ? ' with-footer' : ''}">${body}</main>

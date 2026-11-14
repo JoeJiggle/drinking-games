@@ -26,6 +26,24 @@ for (const id of games) {
     assert.match(meta.color, /^#[0-9a-f]{6}$/i);
     assert.match(meta.color2, /^#[0-9a-f]{6}$/i);
     for (const c of meta.categories || []) for (const l of LANGS) assert.ok(c.name[l] && c.desc[l], `${c.id}.${l}`);
+    // Optionen (Einstellungen des Spiels)
+    const keys = new Set();
+    for (const o of meta.options || []) {
+      keys.add(o.key);
+      for (const l of LANGS) assert.ok(o.label?.[l], `options.${o.key}.label.${l}`);
+      assert.ok(['choice', 'toggle', 'stepper'].includes(o.type), `options.${o.key}: unbekannter Typ`);
+      if (o.type === 'choice') {
+        assert.ok(o.choices.some((c) => c.value === o.default), `options.${o.key}: default fehlt in choices`);
+        for (const c of o.choices) for (const l of LANGS) assert.ok(c.label[l], `options.${o.key}.${c.value}.${l}`);
+      }
+      if (o.type === 'stepper') assert.ok(o.min <= o.default && o.default <= o.max, `options.${o.key}: default außerhalb`);
+      if (o.type === 'toggle') assert.equal(typeof o.default, 'boolean');
+    }
+    for (const [key, text] of Object.entries(meta.rulesIf || {})) {
+      assert.ok(keys.has(key), `rulesIf.${key} ohne passende Option`);
+      for (const l of LANGS) assert.ok(text[l], `rulesIf.${key}.${l}`);
+    }
+    for (const c of meta.custom || []) for (const l of LANGS) assert.ok(c.label[l] && c.hint[l], `custom.${c.list}.${l}`);
   });
 }
 

@@ -7,9 +7,37 @@
   "name": { "de": "Ich hab noch nie", "en": "Never Have I Ever" },
   "tagline": { "de": "Wer's schon getan hat, trinkt.", "en": "Done it? Drink." },
   "rules": {
-    "de": "Lest die Aussage vor. Wer es schon mal getan hat, trinkt einen Schluck. Zwischendurch kommen Sonderkarten mit euren Namen.",
-    "en": "Read the statement out loud. Anyone who has done it takes a sip. Every now and then a special card calls you out by name."
+    "de": "Lest die Aussage vor. Wer es schon mal getan hat, trinkt einen Schluck.",
+    "en": "Read the statement out loud. Anyone who has done it takes a sip."
   },
+  "rulesIf": {
+    "specials": {
+      "de": "Zwischendurch kommen Sonderkarten mit euren Namen.",
+      "en": "Every now and then a special card calls you out by name."
+    }
+  },
+  "options": [
+    {
+      "key": "specials",
+      "type": "choice",
+      "default": "normal",
+      "label": { "de": "Sonderkarten", "en": "Special cards" },
+      "choices": [
+        { "value": "off", "label": { "de": "Aus", "en": "Off" } },
+        { "value": "rare", "label": { "de": "Selten", "en": "Rare" } },
+        { "value": "normal", "label": { "de": "Normal", "en": "Normal" } },
+        { "value": "often", "label": { "de": "Oft", "en": "Often" } }
+      ]
+    }
+  ],
+  "custom": [
+    {
+      "list": "cards",
+      "maxPlayers": 0,
+      "label": { "de": "Aussage", "en": "Statement" },
+      "hint": { "de": "Beginne am besten mit „Ich hab noch nie …“.", "en": "Best to start with “Never have I ever…”." }
+    }
+  ],
   "categories": [
     {
       "id": "mild",
@@ -31,6 +59,7 @@
     },
     {
       "id": "spicy",
+      "adult": true,
       "icon": "🌶️",
       "color": "#e64980",
       "color2": "#7b1240",

@@ -5,10 +5,7 @@ export const LANGS = ['de', 'en'];
 const dicts = {};
 let lang = 'de';
 
-export function detectLang() {
-  const first = (navigator.languages?.[0] || navigator.language || '').toLowerCase();
-  return first.startsWith('de') ? 'de' : 'en';
-}
+export const DEFAULT_LANG = 'en';
 
 export async function initI18n(saved) {
   await Promise.all(
@@ -17,7 +14,7 @@ export async function initI18n(saved) {
       dicts[l] = await res.json();
     }),
   );
-  lang = LANGS.includes(saved) ? saved : detectLang();
+  lang = LANGS.includes(saved) ? saved : DEFAULT_LANG;
   document.documentElement.lang = lang;
 }
 

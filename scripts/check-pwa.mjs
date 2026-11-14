@@ -140,7 +140,36 @@ try {
   await waitFor('!!navigator.serviceWorker.controller', 'Service Worker aktiv', 15000);
   const version = await evaluate(`import('./js/version.js').then(m => m.APP_VERSION)`);
   log(`Service Worker aktiv, APP_VERSION ${version}`);
+  if (!remoteUrl && (await evaluate('document.documentElement.lang')) !== 'en') problems.push('Standardsprache ist nicht Englisch');
+  await shot('01-hub-en');
+  // Flagge im Hub wechselt die Sprache
+  await click('[data-act=lang]');
+  if ((await evaluate('document.documentElement.lang')) !== 'de') problems.push('Flagge wechselt nicht auf Deutsch');
   await shot('01-hub');
+
+  // Einstellungen: Darstellung und Trinkstärke
+  await click('[data-act=settings]');
+  await click('[data-set=theme][data-value=dark]');
+  await click('[data-set=strength][data-value=light]');
+  await evaluate('document.querySelector("[data-set=bigText]").click()');
+  const display = await evaluate('[document.documentElement.dataset.theme, document.documentElement.classList.contains("big-text")].join()');
+  if (display !== 'dark,true') problems.push(`Darstellung wird nicht übernommen: ${display}`);
+  await shot('14-einstellungen');
+  await click('[data-set=theme][data-value=auto]');
+  // Eigene Karte für Wahrheit oder Pflicht
+  await click('#open-custom');
+  await click('[data-game=truthordare]');
+  await click('[data-list=dares]');
+  await evaluate(`(() => { const t = document.getElementById('ctext'); t.value = 'Test-Pflicht mit {p2}'; t.dispatchEvent(new Event('input')); })()`);
+  await click('#cadd');
+  await evaluate(`(() => { const t = document.getElementById('ctext'); t.value = 'Kaputt {p3}'; t.dispatchEvent(new Event('input')); })()`);
+  await click('#cadd');
+  if (!(await text('#cmsg'))) problems.push('Kein Hinweis bei ungültigem Platzhalter');
+  const customCount = await evaluate('document.querySelectorAll(".ccard").length');
+  if (customCount !== 1) problems.push(`Eigene Karten: ${customCount} statt 1`);
+  await shot('15-eigene-karten');
+  await click('[data-act=back]');
+  await click('[data-act=back]');
 
   // Spieler anlegen
   await click('[data-tab=players]');
@@ -189,11 +218,19 @@ try {
   const after = await text('#stage .card:not(.leaving) .card-text');
   if (before !== after) problems.push('Zurück + Weiter zeigt nicht dieselbe Karte');
 
-  // Sprache mitten im Spiel wechseln
+  // Karte aussortieren
   await click('[data-act=pause]');
   await shot('06-pause');
+  const hiddenText = await text('#stage .card:not(.leaving) .card-text');
+  await click('[data-act=hide]');
+  await sleep(400);
+  if ((await text('#stage .card:not(.leaving) .card-text')) === hiddenText) problems.push('Aussortierte Karte bleibt stehen');
+
+  // Sprache mitten im Spiel wechseln
+  await click('[data-act=pause]');
   await click('[data-act=settings]');
-  await click('[data-lang=en]');
+  if (!(await text('#reset-hidden'))?.includes('(1)')) problems.push('Aussortierte Karte wird in den Einstellungen nicht gezählt');
+  await click('[data-set=lang][data-value=en]');
   await click('[data-act=back]');
   await waitFor('!!document.querySelector("#stage .card")', 'Spiel nach Sprachwechsel');
   const enText = await text('#stage .card .card-text');

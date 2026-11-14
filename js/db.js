@@ -68,6 +68,15 @@ export async function get(key, fallback = null) {
   }
 }
 
+// Löscht alle gespeicherten Daten (Datenbank selbst bleibt bestehen)
+export async function clearAll() {
+  if (memory) {
+    memory.clear();
+    return;
+  }
+  await tx('readwrite', (s) => s.clear());
+}
+
 export async function set(key, value) {
   if (memory) {
     memory.set(key, value);

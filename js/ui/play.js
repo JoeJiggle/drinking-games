@@ -12,10 +12,13 @@
 //   outcome?   gewählte Aktion (wird beim Zurückblättern hervorgehoben)
 import { t, tn, pick } from '../i18n.js';
 import { state, go } from '../router.js';
-import { getGame } from '../games/registry.js';
-import { renderParts } from '../core/placeholders.js';
+import { getGame, rulesText } from '../games/registry.js';
+import { renderParts, renderText } from '../core/placeholders.js';
+import { setting, gameOptions } from '../settings.js';
+import { hideCard, unhideCard } from '../cards-store.js';
 import { esc, icons, reflow, reduceMotion } from './dom.js';
 import { startGame } from './setup.js';
+import { showToast } from './toast.js';
 
 const SWIPE = 70; // ab so vielen Pixeln zählt ein Wisch
 
@@ -25,7 +28,7 @@ function themeOf(card) {
 
 function cardHtml(card) {
   const theme = themeOf(card);
-  const text = renderParts(pick(card.text), card.players)
+  const text = renderParts(pick(card.text), card.players, { strength: setting('strength') })
     .map((p) => (p.type === 'name' ? `<strong class="pname">${esc(p.value)}</strong>` : esc(p.value)))
     .join('');
   const plain = pick(card.text);
@@ -54,7 +57,9 @@ function controlsHtml(card) {
       <button class="btn-action act-${a.style || 'secondary'}" data-action="${a.id}"${a.disabled ? ' disabled' : ''}${
           card.outcome ? ` aria-pressed="${card.outcome === a.id}"` : ''
         }>
-        <span>${esc(pick(a.label))}</span>${a.sub ? `<small>${esc(pick(a.sub))}</small>` : ''}
+        <span>${esc(pick(a.label))}</span>${
+          a.sub ? `<small>${esc(renderText(pick(a.sub), [], { strength: setting('strength') }))}</small>` : ''
+        }
       </button>`,
       )
       .join('')
@@ -76,8 +81,9 @@ export function playView(root) {
       <div class="sheet-wrap" id="pause-sheet">
         <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pause-title">
           <h2 id="pause-title">${esc(t('game.paused'))}</h2>
-          <p class="sheet-rules"><strong>${esc(t('game.rules'))}:</strong> ${esc(pick(game.meta.rules))}</p>
+          <p class="sheet-rules"><strong>${esc(t('game.rules'))}:</strong> ${esc(rulesText(game, gameOptions(game)))}</p>
           <button class="sheet-btn primary" data-act="resume">${esc(t('game.resume'))}</button>
+          <button class="sheet-btn" data-act="hide">${esc(t('game.hideCard'))}</button>
           <button class="sheet-btn" data-act="settings">${esc(t('game.settings'))}</button>
           <button class="sheet-btn danger" data-act="quit">${esc(t('game.quit'))}</button>
         </div>
@@ -93,6 +99,7 @@ export function playView(root) {
   });
   root.querySelector('[data-act=pause]').addEventListener('click', () => setPaused(true));
   root.querySelector('[data-act=resume]').addEventListener('click', () => setPaused(false));
+  root.querySelector('[data-act=hide]').addEventListener('click', hideCurrent);
   root.querySelector('[data-act=settings]').addEventListener('click', () => go('settings'));
   root.querySelector('[data-act=quit]').addEventListener('click', () => go('end'));
   root.querySelector('#pause-sheet').addEventListener('click', (e) => {
@@ -111,8 +118,32 @@ export function playView(root) {
 function setPaused(open) {
   const sheet = document.getElementById('pause-sheet');
   if (!sheet) return;
+  // „Nicht mehr zeigen“ gibt es nur für Karten aus einem Kartensatz (nicht z. B. für die Wahl-Karte)
+  const hide = sheet.querySelector('[data-act=hide]');
+  if (hide) hide.hidden = !(state.current?.id && state.session.skip);
   reflow(sheet);
   sheet.classList.toggle('open', open);
+}
+
+function hideCurrent() {
+  const card = state.current;
+  if (!card?.id || !state.session.skip) return;
+  const gameId = state.gameId;
+  hideCard(gameId, card.id);
+  setPaused(false);
+  showToast({
+    id: 'hidden',
+    text: t('game.hidden'),
+    action: t('players.undo'),
+    onAction: () => unhideCard(gameId, card.id),
+  });
+  const next = state.session.skip();
+  if (!next) {
+    go('end');
+    return;
+  }
+  state.current = next;
+  placeCard(next, 'next');
 }
 
 const needsAction = (card) => Boolean(card?.actions && !card.outcome);

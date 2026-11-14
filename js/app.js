@@ -2,14 +2,18 @@
 import { initDb, get, set } from './db.js';
 import { initI18n } from './i18n.js';
 import { loadPlayers } from './players.js';
+import { loadSettings, setting } from './settings.js';
+import { loadCardStore } from './cards-store.js';
 import { loadRegistry } from './games/registry.js';
-import { registerView, render } from './router.js';
+import { registerView, render, afterRender } from './router.js';
 import { hubView } from './ui/hub.js';
 import { playersView } from './ui/players-view.js';
 import { settingsView } from './ui/settings.js';
+import { customView } from './ui/custom.js';
 import { setupView } from './ui/setup.js';
 import { playView, endView } from './ui/play.js';
 import { initUpdates } from './ui/update.js';
+import { keepAwake } from './ui/wakelock.js';
 
 lockZoom();
 start().catch((err) => {
@@ -21,14 +25,16 @@ start().catch((err) => {
 async function start() {
   await initDb();
   const lang = await get('lang', null);
-  await Promise.all([initI18n(lang), loadPlayers(), loadRegistry()]);
+  await Promise.all([initI18n(lang), loadPlayers(), loadSettings(), loadCardStore(), loadRegistry()]);
 
   registerView('hub', hubView);
   registerView('players', playersView);
   registerView('settings', settingsView);
+  registerView('custom', customView);
   registerView('setup', setupView);
   registerView('play', playView);
   registerView('end', endView);
+  afterRender((s) => keepAwake(s.view === 'play' && setting('keepAwake')));
   render();
 
   initUpdates();

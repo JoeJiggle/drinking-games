@@ -1,7 +1,7 @@
 // Service Worker: App-Dateien offline verfügbar machen
 // Bei jeder Änderung CACHE erhöhen (gleich wie APP_VERSION in js/version.js)
 // und neue Dateien unten eintragen.
-const CACHE = 'drinkinggames-v1.1.1';
+const CACHE = 'drinkinggames-v1.2.0';
 
 const CORE = [
   './',
@@ -14,9 +14,13 @@ const CORE = [
   'js/i18n.js',
   'js/router.js',
   'js/players.js',
+  'js/settings.js',
+  'js/cards-store.js',
   'js/core/random.js',
   'js/core/placeholders.js',
   'js/core/matching.js',
+  'js/core/custom.js',
+  'js/core/backup.js',
   'js/games/registry.js',
   'js/games/never/game.js',
   'js/games/truthordare/game.js',
@@ -27,6 +31,9 @@ const CORE = [
   'js/ui/players-editor.js',
   'js/ui/players-view.js',
   'js/ui/settings.js',
+  'js/ui/custom.js',
+  'js/ui/dialog.js',
+  'js/ui/wakelock.js',
   'js/ui/setup.js',
   'js/ui/play.js',
   'js/ui/update.js',

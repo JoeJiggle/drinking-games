@@ -75,6 +75,41 @@ test('Zurück zeigt dieselbe Karte mit denselben Namen, Weiter danach wieder die
   assert.notEqual(s.next(), seen[11]);
 });
 
+test('Sonderkarten: aus, selten und oft', () => {
+  const all = ['mild', 'party', 'spicy'];
+  const off = playAll(createSession({ content, players, categories: all, options: { specials: 'off' }, rng: seededRng(7) }));
+  assert.ok(off.every((c) => c.kind === 'statement'));
+  const count = (specials) =>
+    playAll(createSession({ content, players, categories: all, options: { specials }, rng: seededRng(7) })).filter((c) => c.kind === 'special').length;
+  assert.ok(count('rare') < count('normal'));
+  assert.ok(count('normal') < count('often'));
+});
+
+test('Spicy-Paare: „immer gemischt“ und „egal“', () => {
+  const group = [
+    { id: 'a', name: 'A', gender: 'f' }, { id: 'b', name: 'B', gender: 'm' },
+    { id: 'c', name: 'C', gender: 'f' }, { id: 'd', name: 'D', gender: 'm' },
+  ];
+  const genders = (pairing, seed) => {
+    const s = createSession({ content, players: group, categories: ['spicy'], options: { specials: 'often', pairing }, rng: seededRng(seed) });
+    const names = Object.fromEntries(group.map((p) => [p.name, p.gender]));
+    return playAll(s).filter((c) => c.id === 's1').map((c) => c.players.map((p) => names[p.name]));
+  };
+  for (let seed = 0; seed < 5; seed++) assert.ok(genders('always', seed).every(([x, y]) => x !== y));
+  const any = Array.from({ length: 10 }, (_, seed) => genders('any', seed)).flat();
+  assert.ok(any.some(([x, y]) => x === y));
+});
+
+test('Sonderkarte aussortieren: kommt in dieser Runde nicht mehr', () => {
+  const s = createSession({ content, players, categories: ['mild', 'party', 'spicy'], options: { specials: 'often' }, rng: seededRng(8) });
+  let card;
+  do card = s.next(); while (card.kind !== 'special');
+  const hiddenId = card.id;
+  s.skip();
+  let rest;
+  while ((rest = s.next())) assert.notEqual(rest.id, hiddenId);
+});
+
 test('am Anfang gibt es kein Zurück', () => {
   const s = createSession({ content, players, categories: ['mild'], rng: seededRng(6) });
   s.next();
