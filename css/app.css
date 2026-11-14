@@ -1020,6 +1020,105 @@ svg {
   background: #ffe066;
   color: #1a1230;
 }
+/* Namensauswahl unter der Karte */
+.vote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.vote-grid:empty {
+  display: none;
+}
+.game.has-vote .swipe-hint {
+  display: none;
+}
+.game.has-vote .stage {
+  margin-bottom: 12px;
+}
+.game.has-vote .card {
+  padding: 58px 22px 26px;
+}
+.game.has-vote .card-text {
+  font-size: clamp(24px, 7vw, 36px);
+}
+.game.has-vote .card-text.long {
+  font-size: clamp(21px, 6vw, 30px);
+}
+.chip {
+  min-height: 52px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transition: transform 0.12s, background 0.15s;
+}
+.chip:active {
+  transform: scale(0.96);
+}
+.chip-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 800;
+}
+.chip-badge {
+  display: none;
+  font-size: 13px;
+  font-weight: 700;
+}
+.chip[aria-pressed='true'] {
+  background: #fff;
+  color: #1a1230;
+}
+.chip[aria-pressed='true'] .chip-badge {
+  display: block;
+}
+.controls-hint {
+  flex: 1;
+  margin: 0;
+  align-self: center;
+  text-align: center;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Ergebnis-Diagramm */
+.card-text.with-chart {
+  font-size: clamp(22px, 6.4vw, 32px);
+}
+.chart {
+  width: 100%;
+  margin-top: 18px;
+  overflow: visible;
+}
+.chart-label {
+  font: 700 15px ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  fill: rgba(255, 255, 255, 0.8);
+}
+.chart-label.hi {
+  fill: #fff3bf;
+}
+.chart-bar {
+  fill: rgba(255, 255, 255, 0.3);
+}
+.chart-bar.hi {
+  fill: #fff3bf;
+}
+.chart-value {
+  font: 800 15px ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  fill: rgba(255, 255, 255, 0.85);
+}
+.chart-value.hi {
+  fill: #fff3bf;
+}
+
 .card.nudge {
   animation: nudge 0.4s;
 }

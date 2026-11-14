@@ -39,8 +39,13 @@ for (const id of games) {
       if (o.type === 'stepper') assert.ok(o.min <= o.default && o.default <= o.max, `options.${o.key}: default außerhalb`);
       if (o.type === 'toggle') assert.equal(typeof o.default, 'boolean');
     }
-    for (const [key, text] of Object.entries(meta.rulesIf || {})) {
-      assert.ok(keys.has(key), `rulesIf.${key} ohne passende Option`);
+    for (const [cond, text] of Object.entries(meta.rulesIf || {})) {
+      const [key, value] = cond.split('=');
+      assert.ok(keys.has(key), `rulesIf.${cond} ohne passende Option`);
+      if (value !== undefined) {
+        const o = meta.options.find((x) => x.key === key);
+        assert.ok(o.choices?.some((c) => c.value === value), `rulesIf.${cond}: Wert gibt es nicht`);
+      }
       for (const l of LANGS) assert.ok(text[l], `rulesIf.${key}.${l}`);
     }
     for (const c of meta.custom || []) for (const l of LANGS) assert.ok(c.label[l] && c.hint[l], `custom.${c.list}.${l}`);
@@ -104,6 +109,19 @@ test('„Wahrheit oder Pflicht“: je 40 Wahrheiten und Pflichten pro Kategorie,
       const n = list.filter((c) => c.cat === cat).length;
       assert.ok(n >= 40, `${cat}: nur ${n} ${name}`);
     }
+  }
+});
+
+test('„Wer würde eher …?“: je 40 Fragen pro Kategorie, alles zweisprachig, ohne Personen-Platzhalter', () => {
+  const meta = json('content/games/mostlikely/game.json');
+  for (const key of ['duel', 'voting', 'result', 'winner', 'tie', 'drinks'])
+    for (const l of LANGS) assert.ok(meta.texts[key]?.[l], `texts.${key}.${l}`);
+  const cats = ['mild', 'party', 'spicy'];
+  const questions = json('content/games/mostlikely/questions.json').cards;
+  checkCards('questions.json', questions, cats, 0);
+  for (const cat of cats) {
+    const n = questions.filter((c) => c.cat === cat).length;
+    assert.ok(n >= 40, `${cat}: nur ${n} Fragen`);
   }
 });
 

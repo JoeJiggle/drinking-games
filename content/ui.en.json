@@ -91,6 +91,7 @@
   "game.round": "Round {n}",
   "game.timerStart": "Start {n} seconds",
   "game.timeUp": "⏰ Time's up!",
+  "game.tapName": "Tap a name",
   "game.hideCard": "Don't show this card again",
   "game.hidden": "Card hidden",
 

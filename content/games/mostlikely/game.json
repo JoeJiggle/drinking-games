@@ -1,8 +1,114 @@
 {
-  "_info": "Platzhalter für einen späteren Spielmodus (status 'soon' in js/games/registry.js).",
+  "_info": "Beschreibung von „Wer würde eher …?“. Alle Texte auf Deutsch (de) und Englisch (en). rulesIf: \"duels\" = gilt bei eingeschalteter Option, \"vote=secret\" = gilt bei genau diesem Wert. texts: {p1} = Person, {n} = eingestellte Schlucke, {s:…} = Schluck-Platzhalter (Trinkstärke).",
   "icon": "🗳️",
   "color": "#1c7ed6",
   "color2": "#3b5bdb",
+  "minPlayers": 3,
   "name": { "de": "Wer würde eher …?", "en": "Who's Most Likely To…?" },
-  "tagline": { "de": "Zeigt aufeinander und stimmt ab", "en": "Point, vote and drink" }
+  "tagline": { "de": "Abstimmen, wer es am ehesten tun würde", "en": "Vote on who'd be most likely to do it" },
+  "rules": {
+    "de": "Lest die Frage vor und stimmt ab, wer es am ehesten tun würde. Wer die meisten Stimmen bekommt, trinkt.",
+    "en": "Read the question out loud and vote on who's most likely to do it. Whoever gets the most votes drinks."
+  },
+  "rulesIf": {
+    "vote=point": {
+      "de": "Auf drei zeigen alle gleichzeitig auf eine Person. Tippt dann an, wer die meisten Finger abbekommen hat – bei Gleichstand mehrere.",
+      "en": "On three, everyone points at someone at the same time. Then tap whoever got the most fingers – several if it's a tie."
+    },
+    "vote=secret": {
+      "de": "Das Handy geht reihum: Jede Person tippt geheim einen Namen, am Ende zeigt die App das Ergebnis.",
+      "en": "Pass the phone around: everyone secretly taps a name, then the app reveals the result."
+    },
+    "duels": {
+      "de": "Ab und zu gibt es ein Duell – dann stehen nur zwei Namen zur Wahl.",
+      "en": "Every now and then there's a duel – only two names to choose from."
+    }
+  },
+  "options": [
+    {
+      "key": "vote",
+      "type": "choice",
+      "default": "point",
+      "label": { "de": "Abstimmung", "en": "Voting" },
+      "choices": [
+        { "value": "point", "label": { "de": "Zeigen", "en": "Point" } },
+        { "value": "secret", "label": { "de": "Geheim", "en": "Secret" } }
+      ]
+    },
+    {
+      "key": "sips",
+      "type": "stepper",
+      "min": 1,
+      "max": 5,
+      "default": 2,
+      "label": { "de": "Schlucke für die Gewählten", "en": "Sips for whoever gets picked" }
+    },
+    {
+      "key": "duels",
+      "type": "toggle",
+      "default": true,
+      "label": { "de": "Duelle zwischen zwei Personen", "en": "Duels between two players" }
+    }
+  ],
+  "custom": [
+    {
+      "list": "questions",
+      "maxPlayers": 0,
+      "label": { "de": "Frage", "en": "Question" },
+      "hint": { "de": "Beginne mit „Wer würde am ehesten …“.", "en": "Start with “Who's most likely to…”." }
+    }
+  ],
+  "categories": [
+    {
+      "id": "mild",
+      "icon": "😇",
+      "color": "#12b886",
+      "color2": "#0b7285",
+      "default": true,
+      "name": { "de": "Harmlos", "en": "Mild" },
+      "desc": { "de": "Lustig und harmlos, für jede Runde", "en": "Funny and harmless, fine for any group" }
+    },
+    {
+      "id": "party",
+      "icon": "🪩",
+      "color": "#f76707",
+      "color2": "#c92a2a",
+      "default": true,
+      "name": { "de": "Party", "en": "Party" },
+      "desc": { "de": "Feiern, Dating, wilde Abende", "en": "Nights out, dating, wild evenings" }
+    },
+    {
+      "id": "spicy",
+      "adult": true,
+      "icon": "🌶️",
+      "color": "#e64980",
+      "color2": "#7b1240",
+      "name": { "de": "Spicy", "en": "Spicy" },
+      "desc": { "de": "Flirten, Sex und Geheimnisse", "en": "Flirting, sex and secrets" }
+    }
+  ],
+  "texts": {
+    "duel": { "de": "Duell", "en": "Duel" },
+    "voting": { "de": "Stimmabgabe", "en": "Your vote" },
+    "result": { "de": "Ergebnis", "en": "Result" },
+    "winner": { "de": "{p1} trinkt {s:{n}|Schluck|Schlucke}!", "en": "{p1} drinks {s:{n}|sip|sips}!" },
+    "tie": {
+      "de": "Gleichstand! Alle mit den meisten Stimmen trinken {s:{n}|Schluck|Schlucke}.",
+      "en": "It's a tie! Everyone with the most votes drinks {s:{n}|sip|sips}."
+    },
+    "drinks": { "de": "trinkt {s:{n}}", "en": "drinks {s:{n}}" }
+  },
+  "stats": {
+    "picked": {
+      "title": { "de": "Am häufigsten gewählt", "en": "Most picked" },
+      "count": { "de": { "one": "1-mal", "other": "{n}-mal" }, "en": { "one": "once", "other": "{n} times" } }
+    },
+    "spared": {
+      "title": { "de": "Unschuldsengel", "en": "Innocent angel" },
+      "count": {
+        "de": { "one": "1-mal gewählt", "other": "{n}-mal gewählt" },
+        "en": { "one": "picked once", "other": "picked {n} times" }
+      }
+    }
+  }
 }

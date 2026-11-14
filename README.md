@@ -5,6 +5,7 @@ Private Party-PWA mit Trinkspielen für das iPhone (früher „DrinkingGames“;
 Aktuell spielbar:
 - **Ich hab noch nie / Never Have I Ever** – Kategorien Harmlos, Party, Spicy, mit Sonderkarten
 - **Wahrheit oder Pflicht / Truth or Dare** – reihum, Verweigern kostet 2 bzw. 3 Schlucke, nach zweimal Wahrheit ist Pflicht dran, Countdown bei Aufgaben mit Zeitlimit, Rückblick am Ende
+- **Wer würde eher …? / Who's Most Likely To…?** – Abstimmung per Zeigen (Gewählte antippen) oder geheim reihum mit Ergebnis-Diagramm, gelegentliche Duelle zwischen zwei Personen, Rückblick am Ende
 
 Weitere Spiele sind als „Bald verfügbar“ vorbereitet.
 
@@ -30,6 +31,7 @@ js/core/                                  Logik ohne DOM (mit Node getestet)
 js/games/registry.js                      Liste aller Spiele
 js/games/never/game.js                    Spiellogik „Ich hab noch nie“
 js/games/truthordare/game.js              Spiellogik „Wahrheit oder Pflicht“
+js/games/mostlikely/game.js               Spiellogik „Wer würde eher …?“
 js/ui/                                    gemeinsame Bausteine der Oberfläche
 content/ui.de.json, ui.en.json            alle Oberflächentexte
 content/games/<spiel>/game.json           Name, Farbe, Icon, Regel, Kategorien
@@ -37,6 +39,7 @@ content/games/never/cards.json            Aussagen
 content/games/never/specials.json         Sonderkarten
 content/games/truthordare/truths.json     Wahrheits-Fragen
 content/games/truthordare/dares.json      Pflicht-Aufgaben
+content/games/mostlikely/questions.json   Fragen „Wer würde am ehesten …?“
 scripts/                                  Hilfsskripte (Server, Icons, Browser-Test)
 tests/                                    automatische Tests
 ```
@@ -86,17 +89,25 @@ Wahrheiten in `truths.json`, Pflichten in `dares.json`. Die Aufgabe richtet sich
 
 Schlucke beim Verweigern, Beschriftungen und der Rückblick stehen in `content/games/truthordare/game.json`.
 
+### Wer würde eher …?
+
+Fragen in `questions.json`, immer als ganze Frage und geschlechtsneutral formuliert (ohne Personen-Platzhalter):
+
+```json
+{ "id": "m-party-41", "cat": "party", "de": "Wer würde am ehesten …?", "en": "Who's most likely to…?" }
+```
+
 Nach dem Ändern `node --test tests/` ausführen: Der Test meldet fehlende Übersetzungen, doppelte ids und Tippfehler in Platzhaltern.
 
 ## Neues Spiel hinzufügen
 
 1. Ordner `content/games/<id>/` mit `game.json` (Name, Tagline, Regel, Farben, Icon – jeweils `de` und `en`) und eigenen Kartendateien.
-2. Spiellogik in `js/games/<id>/game.js` mit `loadContent(base)` und `createSession({ content, players, categories })`. Die Sitzung liefert `next()`, `prev()`, `total`, `canGoBack()` und `played()`; jede Karte hat `theme`, `text: { de, en }` und `players`. Dann übernimmt die gemeinsame Kartenanzeige alles Weitere (Wischen, Fortschritt, Pause, Ende-Bildschirm, Sprachwechsel). Optional: Karten mit `actions` (eigene Knöpfe, ausgelöst über `act(id)`), `timer`, `round` und ein `summary()` für den Rückblick – siehe `js/ui/play.js` und das Beispiel „Wahrheit oder Pflicht“.
+2. Spiellogik in `js/games/<id>/game.js` mit `loadContent(base)` und `createSession({ content, players, categories })`. Die Sitzung liefert `next()`, `prev()`, `total`, `canGoBack()` und `played()`; jede Karte hat `theme`, `text: { de, en }` und `players`. Dann übernimmt die gemeinsame Kartenanzeige alles Weitere (Wischen, Fortschritt, Pause, Ende-Bildschirm, Sprachwechsel). Optional: Karten mit `actions` (eigene Knöpfe, ausgelöst über `act(id)`), `vote` (Namensauswahl), `chart` (Balkendiagramm), `timer`, `round` und ein `summary()` für den Rückblick – siehe `js/ui/play.js` und das Beispiel „Wahrheit oder Pflicht“.
 3. In `js/games/registry.js` eintragen bzw. von `soon` auf `active` stellen.
 
 In `game.json` außerdem möglich (Beispiele in den beiden vorhandenen Spielen):
 - `options`: Einstellungen des Spiels (`choice`, `toggle`, `stepper`) – erscheinen automatisch in den Einstellungen und werden als `options` an `createSession` übergeben
-- `rulesIf`: Regelsatz, der nur bei eingeschalteter Option angezeigt wird
+- `rulesIf`: Regelsatz, der nur bei eingeschalteter Option (`"duels"`) oder einem bestimmten Wert (`"vote=secret"`) angezeigt wird
 - `custom`: welche Kartenlisten man in der App mit eigenen Karten ergänzen kann
 - `"adult": true` an einer Kategorie: wird bei „Spicy ausblenden“ versteckt
 4. Neue Dateien in `sw.js` eintragen, Versionen erhöhen (siehe unten).

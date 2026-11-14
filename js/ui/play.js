@@ -9,7 +9,10 @@
 //   number?    für die Anzeige „n / total“, sonst round? für „Runde n“
 //   timer?     Sekunden für einen Countdown auf der Karte
 //   actions?   Knöpfe statt „Weiter“: [{ id, label, sub?, style?, disabled? }] – ausgelöst über session.act(id)
-//   outcome?   gewählte Aktion (wird beim Zurückblättern hervorgehoben)
+//   vote?      Namensauswahl unter der Karte: { multi, candidates: [{ id, name }], badge? }
+//              multi: Namen antippen, „Weiter“ ruft session.act('vote', [ids]) – sonst ruft ein Tipp session.act(id)
+//   chart?     Balkendiagramm auf der Karte: [{ label, value, highlight }]
+//   outcome?   gewählte Aktion bzw. Namen (wird beim Zurückblättern hervorgehoben)
 import { t, tn, pick } from '../i18n.js';
 import { state, go } from '../router.js';
 import { getGame, rulesText } from '../games/registry.js';
@@ -39,15 +42,38 @@ function cardHtml(card) {
       <div class="card-label">${theme.icon ? `<span aria-hidden="true">${theme.icon}</span> ` : ''}${esc(label)}${
         card.who ? ` · <span class="card-who">${esc(card.who)}</span>` : ''
       }</div>
-      <p class="card-text${plain.length > 105 ? ' long' : ''}">${text}</p>
+      <p class="card-text${plain.length > 105 ? ' long' : ''}${card.chart ? ' with-chart' : ''}">${text}</p>
+      ${card.chart ? chartSvg(card.chart) : ''}
       ${card.timer ? `<button class="card-timer" data-timer="${card.timer}">⏱ ${esc(t('game.timerStart', { n: card.timer }))}</button>` : ''}`,
   };
+}
+
+// Balkendiagramm als SVG (z. B. Stimmen pro Person)
+function chartSvg(rows) {
+  const max = Math.max(1, ...rows.map((r) => r.value));
+  const row = 34;
+  const short = (s) => (s.length > 11 ? s.slice(0, 10) + '…' : s);
+  return `
+    <svg class="chart" viewBox="0 0 300 ${rows.length * row}" role="img">
+      ${rows
+        .map((r, i) => {
+          const y = i * row;
+          const w = Math.max(3, Math.round((r.value / max) * 160));
+          const hi = r.highlight ? ' hi' : '';
+          return `
+        <text x="0" y="${y + 22}" class="chart-label${hi}">${esc(short(r.label))}</text>
+        <rect x="104" y="${y + 6}" width="${w}" height="22" rx="7" class="chart-bar${hi}"/>
+        <text x="${104 + w + 8}" y="${y + 22}" class="chart-value${hi}">${r.value}</text>`;
+        })
+        .join('')}
+    </svg>`;
 }
 
 function controlsHtml(card) {
   const back = `<button class="btn-back" data-act="prev" aria-label="${esc(t('game.back'))}"${
     state.session.canGoBack() ? '' : ' disabled'
   }>${icons.back}</button>`;
+  if (card.vote && !card.vote.multi) return `${back}<p class="controls-hint">${esc(t('game.tapName'))}</p>`;
   if (!card.actions) return `${back}<button class="btn-next" data-act="next">${esc(t('game.next'))}</button>`;
   return (
     back +
@@ -77,6 +103,7 @@ export function playView(root) {
       </div>
       <div class="stage" id="stage"></div>
       <p class="swipe-hint" id="swipe-hint">${esc(t('game.swipeHint'))}</p>
+      <div class="vote-grid" id="vote"></div>
       <div class="game-bottom" id="controls"></div>
       <div class="sheet-wrap" id="pause-sheet">
         <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pause-title">
@@ -104,6 +131,11 @@ export function playView(root) {
   root.querySelector('[data-act=quit]').addEventListener('click', () => go('end'));
   root.querySelector('#pause-sheet').addEventListener('click', (e) => {
     if (e.target.id === 'pause-sheet') setPaused(false);
+  });
+
+  root.querySelector('#vote').addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-pick]');
+    if (chip) pickName(chip.dataset.pick);
   });
 
   const stage = document.getElementById('stage');
@@ -146,7 +178,46 @@ function hideCurrent() {
   placeCard(next, 'next');
 }
 
-const needsAction = (card) => Boolean(card?.actions && !card.outcome);
+// Karten, bei denen erst ein Knopf oder ein Name getippt werden muss
+const needsAction = (card) => Boolean((card?.actions || (card?.vote && !card.vote.multi)) && !card.outcome);
+
+// ---------- Namensauswahl ----------
+let selected = new Set(); // bei Mehrfachauswahl: gerade markierte Namen
+
+function renderVote(card) {
+  const box = document.getElementById('vote');
+  if (!box) return;
+  document.getElementById('game')?.classList.toggle('has-vote', Boolean(card.vote));
+  if (!card.vote) {
+    box.innerHTML = '';
+    return;
+  }
+  const { multi, candidates, badge } = card.vote;
+  if (multi) selected = new Set(Array.isArray(card.outcome) ? card.outcome : []);
+  const badgeText = badge ? renderText(pick(badge), [], { strength: setting('strength') }) : '';
+  box.innerHTML = candidates
+    .map((c) => {
+      const on = multi ? selected.has(c.id) : card.outcome === c.id;
+      return `
+        <button class="chip" data-pick="${esc(c.id)}" aria-pressed="${on}">
+          <span class="chip-name">${esc(c.name)}</span>
+          ${multi && badgeText ? `<span class="chip-badge">🍺 ${esc(badgeText)}</span>` : ''}
+        </button>`;
+    })
+    .join('');
+}
+
+function pickName(id) {
+  const card = state.current;
+  if (!card?.vote) return;
+  if (!card.vote.multi) {
+    doAction(id);
+    return;
+  }
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  document.querySelector(`#vote [data-pick="${CSS.escape(id)}"]`)?.setAttribute('aria-pressed', String(selected.has(id)));
+}
 
 function nudge() {
   const card = document.querySelector('#stage .card:not(.leaving)');
@@ -163,6 +234,7 @@ function goNext() {
     nudge();
     return false;
   }
+  if (current?.vote?.multi) return doAction('vote', [...selected]);
   const card = state.session.next();
   if (!card) {
     if (!current?.actions) go('end');
@@ -182,12 +254,16 @@ function goPrev() {
   return true;
 }
 
-function doAction(id) {
-  if (state.view !== 'play') return;
-  const card = state.session.act?.(id);
-  if (!card) return;
+function doAction(id, payload) {
+  if (state.view !== 'play') return false;
+  const card = state.session.act?.(id, payload);
+  if (!card) {
+    if (state.session.finished?.()) go('end');
+    return false;
+  }
   state.current = card;
   placeCard(card, 'next');
+  return true;
 }
 
 function placeCard(card, dir) {
@@ -227,8 +303,9 @@ function placeCard(card, dir) {
     controls.innerHTML = controlsHtml(card);
     controls.classList.toggle('has-actions', Boolean(card.actions));
   }
+  renderVote(card);
   const hint = document.getElementById('swipe-hint');
-  if (hint) hint.classList.toggle('hidden', Boolean(card.actions) || state.session.canGoBack());
+  if (hint) hint.classList.toggle('hidden', Boolean(card.actions || card.vote) || state.session.canGoBack());
 }
 
 function startTimer(btn) {

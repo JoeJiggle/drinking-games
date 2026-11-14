@@ -91,6 +91,7 @@
   "game.round": "Runde {n}",
   "game.timerStart": "{n} Sekunden starten",
   "game.timeUp": "⏰ Zeit um!",
+  "game.tapName": "Tippe auf einen Namen",
   "game.hideCard": "Diese Karte nicht mehr zeigen",
   "game.hidden": "Karte aussortiert",
 

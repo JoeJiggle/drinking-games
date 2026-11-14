@@ -9,16 +9,21 @@ import { pick } from '../i18n.js';
 export const GAMES = [
   { id: 'never', status: 'active', load: () => import('./never/game.js') },
   { id: 'truthordare', status: 'active', load: () => import('./truthordare/game.js') },
+  { id: 'mostlikely', status: 'active', load: () => import('./mostlikely/game.js') },
   { id: 'partymix', status: 'soon' },
-  { id: 'mostlikely', status: 'soon' },
 ];
 
 const base = (id) => `content/games/${id}/`;
 
-// Regeltext mit den Sätzen, die nur bei eingeschalteter Option gelten (game.json: "rulesIf")
+// Regeltext mit den Sätzen, die nur bei bestimmten Optionen gelten (game.json: "rulesIf")
+// Schlüssel "duels" = Option eingeschaltet, "vote=secret" = Option hat genau diesen Wert
 export function rulesText(game, options = {}) {
+  const applies = (cond) => {
+    const [key, value] = cond.split('=');
+    return value === undefined ? Boolean(options[key]) && options[key] !== 'off' : String(options[key]) === value;
+  };
   const extra = Object.entries(game.meta.rulesIf || {})
-    .filter(([key]) => options[key] && options[key] !== 'off')
+    .filter(([cond]) => applies(cond))
     .map(([, text]) => pick(text));
   return [pick(game.meta.rules), ...extra].join(' ');
 }

@@ -286,6 +286,51 @@ try {
   await shot('13-rueckblick');
   await click('[data-act=hub]');
 
+  // Wer würde eher …? – Abstimmung „Zeigen“
+  await click('[data-game=mostlikely]');
+  await waitFor('!!document.getElementById("start")', 'Setup Wer würde eher');
+  await click('#start');
+  await waitFor('!!document.querySelector("#vote [data-pick]")', 'Namensauswahl');
+  const chips = await evaluate('document.querySelectorAll("#vote [data-pick]").length');
+  if (chips !== 4) problems.push(`Namensauswahl: ${chips} statt 4 Namen`);
+  await click('#vote [data-pick]');
+  await shot('16-zeigen');
+  let duel = false;
+  for (let i = 0; i < 12; i++) {
+    await click('[data-act=next]');
+    await sleep(60);
+    if (!duel && (await evaluate('document.querySelectorAll("#vote [data-pick]").length === 2'))) {
+      duel = true;
+      await shot('17-duell');
+    }
+  }
+  if (!duel) problems.push('Kein Duell innerhalb von 12 Fragen');
+  await click('[data-act=pause]');
+  await click('[data-act=quit]');
+  await waitFor('document.getElementById("app").dataset.view === "end"', 'Ende Wer würde eher');
+  await click('[data-act=hub]');
+
+  // Abstimmung „Geheim“ über die Einstellungen
+  await click('[data-act=settings]');
+  await click('[data-game=mostlikely][data-opt=vote][data-value=secret]');
+  await click('[data-act=back]');
+  await click('[data-game=mostlikely]');
+  await click('#start');
+  await waitFor('!!document.querySelector("#vote [data-pick]")', 'Geheime Abstimmung');
+  await shot('18-geheim');
+  for (const i of [1, 1, 2, 1]) {
+    await click(`#vote [data-pick]:nth-child(${i})`);
+    await sleep(80);
+  }
+  const chart = await evaluate('!!document.querySelector("#stage .card:not(.leaving) .chart")');
+  if (!chart) problems.push('Kein Ergebnis-Diagramm nach der geheimen Abstimmung');
+  await shot('19-ergebnis');
+  await click('[data-act=pause]');
+  await click('[data-act=quit]');
+  await waitFor('document.querySelectorAll(".stats li").length > 0', 'Rückblick Wer würde eher');
+  await shot('20-rueckblick');
+  await click('[data-act=hub]');
+
   // Offline: Server stoppen und neu laden
   if (server) {
     server.kill();
