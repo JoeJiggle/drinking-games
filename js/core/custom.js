@@ -3,12 +3,10 @@ import { inspectText } from './placeholders.js';
 
 // Eigene Karte: { id, game, list, cat, text } – list ist der Name der Kartenliste im Spiel (z. B. "cards", "dares")
 export function toCard(custom) {
-  const withP2 = /\{p2[:}]/.test(custom.text);
+  const { maxPlayer } = inspectText(custom.text);
   const card = { id: custom.id, cat: custom.cat, de: custom.text, en: custom.text, custom: true };
-  if (withP2) {
-    card.players = 2;
-    if (custom.cat === 'spicy') card.match = 'mixed';
-  }
+  if (maxPlayer > 0) card.players = maxPlayer;
+  if (maxPlayer >= 2 && custom.cat === 'spicy') card.match = 'mixed';
   return card;
 }
 

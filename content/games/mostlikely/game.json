@@ -4,7 +4,7 @@
   "color": "#1c7ed6",
   "color2": "#3b5bdb",
   "minPlayers": 3,
-  "name": { "de": "Wer würde eher …?", "en": "Who's Most Likely To…?" },
+  "name": { "de": "Wer würde eher …?", "en": "Who's Most Likely To…?" },
   "tagline": { "de": "Abstimmen, wer es am ehesten tun würde", "en": "Vote on who'd be most likely to do it" },
   "rules": {
     "de": "Lest die Frage vor und stimmt ab, wer es am ehesten tun würde. Wer die meisten Stimmen bekommt, trinkt.",

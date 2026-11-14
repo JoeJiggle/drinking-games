@@ -6,8 +6,7 @@ Aktuell spielbar:
 - **Ich hab noch nie / Never Have I Ever** – Kategorien Harmlos, Party, Spicy, mit Sonderkarten
 - **Wahrheit oder Pflicht / Truth or Dare** – reihum, Verweigern kostet 2 bzw. 3 Schlucke, nach zweimal Wahrheit ist Pflicht dran, Countdown bei Aufgaben mit Zeitlimit, Rückblick am Ende
 - **Wer würde eher …? / Who's Most Likely To…?** – Abstimmung per Zeigen (Gewählte antippen) oder geheim reihum mit Ergebnis-Diagramm, gelegentliche Duelle zwischen zwei Personen, Rückblick am Ende
-
-Weitere Spiele sind als „Bald verfügbar“ vorbereitet.
+- **Party-Mix / Party Mix** – gemischter Stapel aus Aufgaben, „Alle, die …“, Regeln mit begrenzter Laufzeit, Mini-Spielen, Duellen und Abstimmungen; Spiellänge 25/40/60 Karten
 
 Die App startet auf Englisch; die Flagge oben im Hub wechselt die Sprache.
 
@@ -32,6 +31,7 @@ js/games/registry.js                      Liste aller Spiele
 js/games/never/game.js                    Spiellogik „Ich hab noch nie“
 js/games/truthordare/game.js              Spiellogik „Wahrheit oder Pflicht“
 js/games/mostlikely/game.js               Spiellogik „Wer würde eher …?“
+js/games/partymix/game.js                 Spiellogik „Party-Mix“
 js/ui/                                    gemeinsame Bausteine der Oberfläche
 content/ui.de.json, ui.en.json            alle Oberflächentexte
 content/games/<spiel>/game.json           Name, Farbe, Icon, Regel, Kategorien
@@ -40,6 +40,7 @@ content/games/never/specials.json         Sonderkarten
 content/games/truthordare/truths.json     Wahrheits-Fragen
 content/games/truthordare/dares.json      Pflicht-Aufgaben
 content/games/mostlikely/questions.json   Fragen „Wer würde am ehesten …?“
+content/games/partymix/cards.json         Karten „Party-Mix“
 scripts/                                  Hilfsskripte (Server, Icons, Browser-Test)
 tests/                                    automatische Tests
 ```
@@ -95,6 +96,17 @@ Fragen in `questions.json`, immer als ganze Frage und geschlechtsneutral formuli
 
 ```json
 { "id": "m-party-41", "cat": "party", "de": "Wer würde am ehesten …?", "en": "Who's most likely to…?" }
+```
+
+### Party-Mix
+
+Karten in `cards.json` mit `type`: `task` (Aufgabe), `all` (Alle, die …), `rule` (Regel), `game` (Mini-Spiel), `duel` (Duell, immer `"players": 2`), `vote` (Zeige-Abstimmung). Regeln brauchen zusätzlich `end` – den Text, der erscheint, wenn die Regel nach 6–10 Karten vorbei ist:
+
+```json
+{ "id": "pm-party-41", "cat": "party", "type": "rule", "players": 1,
+  "de": "Neue Regel: {p1} darf nur flüstern. Jeder Patzer kostet {s:1}.",
+  "en": "New rule: {p1} may only whisper. Every slip costs {s:1}.",
+  "end": { "de": "{p1} darf wieder laut reden.", "en": "{p1} may talk out loud again." } }
 ```
 
 Nach dem Ändern `node --test tests/` ausführen: Der Test meldet fehlende Übersetzungen, doppelte ids und Tippfehler in Platzhaltern.

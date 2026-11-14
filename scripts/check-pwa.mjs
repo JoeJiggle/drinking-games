@@ -331,6 +331,31 @@ try {
   await shot('20-rueckblick');
   await click('[data-act=hub]');
 
+  // Party-Mix: bis zum Ende spielen, Regel und Regel-Ende müssen vorkommen
+  await click('[data-game=partymix]');
+  await waitFor('!!document.getElementById("start")', 'Setup Party-Mix');
+  await click('#start');
+  await waitFor('!!document.querySelector("#stage .card")', 'Party-Mix-Karte');
+  await shot('21-partymix');
+  const seen = new Set();
+  for (let i = 0; i < 120; i++) {
+    if (await evaluate('document.getElementById("app").dataset.view === "end"')) break;
+    const label = await text('#stage .card:not(.leaving) .card-label');
+    if (/rule over/i.test(label) && !seen.has('end')) {
+      seen.add('end');
+      await shot('23-regel-vorbei');
+    } else if (/new rule/i.test(label) && !seen.has('rule')) {
+      seen.add('rule');
+      await shot('22-regel');
+    }
+    await click('[data-act=next]');
+    await sleep(40);
+  }
+  if (!seen.has('rule') || !seen.has('end')) problems.push(`Party-Mix: Regel/Regel-Ende nicht gesehen (${[...seen]})`);
+  if (!(await evaluate('document.getElementById("app").dataset.view === "end"'))) problems.push('Party-Mix: Ende nicht erreicht');
+  await shot('24-partymix-ende');
+  await click('[data-act=hub]');
+
   // Offline: Server stoppen und neu laden
   if (server) {
     server.kill();

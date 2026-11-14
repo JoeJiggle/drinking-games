@@ -17,6 +17,13 @@ test('eigene Karten landen in der richtigen Liste, ohne das Original zu verände
   assert.deepEqual(toCard(mine[0]), { id: 'c-1', cat: 'spicy', de: 'Küss {p2}', en: 'Küss {p2}', custom: true, players: 2, match: 'mixed' });
 });
 
+test('eigene Karte mit nur {p1} braucht eine Person', () => {
+  const card = toCard({ id: 'c-9', game: 'partymix', list: 'cards', cat: 'party', text: '{p1} trinkt {s:2}' });
+  assert.equal(card.players, 1);
+  assert.equal(card.match, undefined);
+  assert.equal(toCard({ id: 'c-8', game: 'never', list: 'cards', cat: 'mild', text: 'Ich hab noch nie …' }).players, undefined);
+});
+
 test('aussortierte Karten werden entfernt', () => {
   const out = removeHidden(mergeCustom(content, mine), (id) => id === 'd1' || id === 'c-2');
   assert.deepEqual(out.dares.map((c) => c.id), ['c-1']);

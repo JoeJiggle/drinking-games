@@ -1,8 +1,94 @@
 {
-  "_info": "Platzhalter für einen späteren Spielmodus (status 'soon' in js/games/registry.js).",
+  "_info": "Beschreibung von „Party-Mix“. Alle Texte auf Deutsch (de) und Englisch (en). themes = Farbe, Icon und Beschriftung je Kartentyp (task, all, rule, ruleEnd, game, duel, vote) und für Spicy-Karten.",
   "icon": "🃏",
   "color": "#f59f00",
   "color2": "#e8590c",
+  "minPlayers": 2,
   "name": { "de": "Party-Mix", "en": "Party Mix" },
-  "tagline": { "de": "Aufgaben, Regeln und Mini-Spiele", "en": "Dares, rules and mini-games" }
+  "tagline": { "de": "Aufgaben, Regeln und Mini-Spiele", "en": "Dares, rules and mini-games" },
+  "rules": {
+    "de": "Lest jede Karte laut vor und macht, was draufsteht.",
+    "en": "Read each card out loud and do what it says."
+  },
+  "rulesIf": {
+    "rules": {
+      "de": "Manche Karten sind Regeln, die eine Weile gelten – die App sagt euch, wann sie vorbei sind.",
+      "en": "Some cards are rules that last a while – the app tells you when they're over."
+    }
+  },
+  "options": [
+    {
+      "key": "length",
+      "type": "choice",
+      "default": "normal",
+      "label": { "de": "Spiellänge", "en": "Game length" },
+      "choices": [
+        { "value": "short", "label": { "de": "Kurz (25)", "en": "Short (25)" } },
+        { "value": "normal", "label": { "de": "Normal (40)", "en": "Normal (40)" } },
+        { "value": "long", "label": { "de": "Lang (60)", "en": "Long (60)" } }
+      ]
+    },
+    {
+      "key": "rules",
+      "type": "toggle",
+      "default": true,
+      "label": { "de": "Regeln, die eine Weile gelten", "en": "Rules that last a while" }
+    }
+  ],
+  "custom": [
+    {
+      "list": "cards",
+      "maxPlayers": 2,
+      "label": { "de": "Aufgabe", "en": "Task" },
+      "hint": {
+        "de": "Tipp: {p1} und {p2} setzen Namen ein, {p1:er|sie} passt sich dem Geschlecht an, {s:2} sind 2 Schlucke (passt sich der Trinkstärke an).",
+        "en": "Tip: {p1} and {p2} insert names, {p1:he|she} adapts to gender, {s:2} means 2 sips (scaled by the drinking level)."
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "mild",
+      "icon": "😇",
+      "color": "#12b886",
+      "color2": "#0b7285",
+      "default": true,
+      "name": { "de": "Harmlos", "en": "Mild" },
+      "desc": { "de": "Lustig und harmlos, für jede Runde", "en": "Funny and harmless, fine for any group" }
+    },
+    {
+      "id": "party",
+      "icon": "🪩",
+      "color": "#f76707",
+      "color2": "#c92a2a",
+      "default": true,
+      "name": { "de": "Party", "en": "Party" },
+      "desc": { "de": "Feiern, Dating, wilde Abende", "en": "Nights out, dating, wild evenings" }
+    },
+    {
+      "id": "spicy",
+      "adult": true,
+      "icon": "🌶️",
+      "color": "#e64980",
+      "color2": "#7b1240",
+      "name": { "de": "Spicy", "en": "Spicy" },
+      "desc": { "de": "Flirten, Körperkontakt, freche Fragen", "en": "Flirting, getting close, cheeky questions" }
+    }
+  ],
+  "themes": {
+    "task": { "icon": "⚡", "color": "#f59f00", "color2": "#e8590c", "label": { "de": "Aufgabe", "en": "Task" } },
+    "all": { "icon": "👥", "color": "#37b24d", "color2": "#2b8a3e", "label": { "de": "Alle", "en": "Everyone" } },
+    "rule": { "icon": "📜", "color": "#7048e8", "color2": "#5f3dc4", "label": { "de": "Neue Regel", "en": "New rule" } },
+    "ruleEnd": { "icon": "✅", "color": "#5c677d", "color2": "#33415c", "label": { "de": "Regel vorbei", "en": "Rule over" } },
+    "game": { "icon": "🎲", "color": "#1c7ed6", "color2": "#1864ab", "label": { "de": "Mini-Spiel", "en": "Mini-game" } },
+    "duel": { "icon": "⚔️", "color": "#f03e3e", "color2": "#a61e4d", "label": { "de": "Duell", "en": "Duel" } },
+    "vote": { "icon": "👉", "color": "#15aabf", "color2": "#0b7285", "label": { "de": "Abstimmung", "en": "Vote" } },
+    "spicy": { "icon": "🌶️", "color": "#e64980", "color2": "#7b1240", "label": { "de": "Spicy", "en": "Spicy" } }
+  },
+  "stats": {
+    "spotlight": {
+      "title": { "de": "Im Rampenlicht", "en": "In the spotlight" },
+      "count": { "de": { "one": "auf 1 Karte", "other": "auf {n} Karten" }, "en": { "one": "on 1 card", "other": "on {n} cards" } }
+    }
+  }
 }

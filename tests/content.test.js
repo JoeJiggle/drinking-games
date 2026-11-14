@@ -125,6 +125,31 @@ test('„Wer würde eher …?“: je 40 Fragen pro Kategorie, alles zweisprachig
   }
 });
 
+test('„Party-Mix“: je 40 Karten pro Kategorie, gültige Typen, Regeln mit Ende-Text', () => {
+  const meta = json('content/games/partymix/game.json');
+  const types = ['task', 'all', 'rule', 'game', 'duel', 'vote'];
+  for (const t of [...types, 'ruleEnd', 'spicy']) for (const l of LANGS) assert.ok(meta.themes[t]?.label?.[l], `themes.${t}.${l}`);
+  const cats = ['mild', 'party', 'spicy'];
+  const cards = json('content/games/partymix/cards.json').cards;
+  checkCards('partymix/cards.json', cards, cats, 0);
+  for (const c of cards) {
+    assert.ok(types.includes(c.type), `${c.id}: unbekannter Typ ${c.type}`);
+    if (c.type === 'rule') {
+      for (const l of LANGS) {
+        assert.ok(c.end?.[l], `${c.id}: end.${l} fehlt`);
+        const info = inspectText(c.end[l]);
+        assert.deepEqual(info.errors, [], `${c.id} end (${l})`);
+        assert.ok(info.maxPlayer <= (c.players || 0), `${c.id} end (${l}): zu viele Personen`);
+      }
+    }
+    if (c.type === 'duel') assert.equal(c.players, 2, `${c.id}: Duell braucht zwei Personen`);
+  }
+  for (const cat of cats) {
+    const n = cards.filter((c) => c.cat === cat).length;
+    assert.ok(n >= 40, `${cat}: nur ${n} Karten`);
+  }
+});
+
 test('Service Worker: Cache-Name passt zu APP_VERSION und alle App-Dateien sind eingetragen', () => {
   const sw = readFileSync(join(root, 'sw.js'), 'utf8');
   const version = readFileSync(join(root, 'js/version.js'), 'utf8').match(/APP_VERSION = '([^']+)'/)[1];

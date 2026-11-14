@@ -19,7 +19,7 @@ const formatDate = (iso) => new Date(iso).toLocaleDateString(getLang() === 'de' 
 
 function seg(name, items, current) {
   return `
-    <div class="seg" role="group" style="grid-template-columns:repeat(${items.length},1fr)">
+    <div class="seg" role="group" style="grid-template-columns:repeat(${items.length > 3 ? 2 : items.length},1fr)">
       ${items.map((i) => `<button data-${name}="${i.value}" aria-pressed="${i.value === current}">${esc(i.label)}</button>`).join('')}
     </div>`;
 }
