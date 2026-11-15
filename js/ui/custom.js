@@ -3,8 +3,8 @@ import { t, tn, pick, getLang } from '../i18n.js';
 import { go, render } from '../router.js';
 import { getGames, getGame } from '../games/registry.js';
 import { getCustom, addCustom, removeCustom, getLastBackup, markBackup, backupData, restoreBackup } from '../cards-store.js';
-import { checkCustomText } from '../core/custom.js';
-import { createBackup, parseBackup } from '../core/backup.js';
+import { checkCustomText, MAX_TEXT } from '../core/custom.js';
+import { createBackup, parseBackup, MAX_BACKUP_BYTES } from '../core/backup.js';
 import { esc, icons } from './dom.js';
 import { shell } from './shell.js';
 import { showToast } from './toast.js';
@@ -55,7 +55,7 @@ export function customView(root) {
         <label class="field-label">${esc(t('custom.category'))}</label>
         ${seg('cat', cats.map((c) => ({ value: c.id, label: `${c.icon} ${pick(c.name)}` })), form.cat)}
         <label class="field-label" for="ctext">${esc(t('custom.text'))}</label>
-        <textarea id="ctext" rows="3" maxlength="240" placeholder="${esc(t('custom.placeholder'))}">${esc(form.text)}</textarea>
+        <textarea id="ctext" rows="3" maxlength="${MAX_TEXT}" placeholder="${esc(t('custom.placeholder'))}">${esc(form.text)}</textarea>
         <p class="hint">${esc(pick(def.hint))}</p>
         <p class="add-msg" id="cmsg" role="status"></p>
         <button class="btn-primary" id="cadd" style="--c:${game.meta.color};--c2:${game.meta.color2}">${esc(t('custom.add'))}</button>
@@ -165,10 +165,26 @@ async function exportBackup() {
   }
 }
 
+// Was ein Import enthalten darf: bekannte Spiele mit ihren Kategorien und Kartenlisten
+function allowedContent() {
+  return Object.fromEntries(
+    getGames()
+      .filter((g) => g.status === 'active')
+      .map((g) => [
+        g.id,
+        {
+          cats: (g.meta.categories || []).map((c) => c.id),
+          lists: Object.fromEntries((g.meta.custom || []).map((l) => [l.list, l.maxPlayers ?? 0])),
+        },
+      ]),
+  );
+}
+
 async function importBackup(file) {
   let incoming;
   try {
-    incoming = parseBackup(await file.text());
+    if (file.size > MAX_BACKUP_BYTES) throw new Error('zu groß');
+    incoming = parseBackup(await file.text(), allowedContent());
   } catch {
     showToast({ id: 'backup', text: t('backup.invalid') });
     return;
@@ -184,6 +200,10 @@ async function importBackup(file) {
   });
   if (!mode) return;
   restoreBackup(incoming, mode);
-  showToast({ id: 'backup', text: t('backup.done'), duration: 2500 });
+  showToast({
+    id: 'backup',
+    text: incoming.skipped ? `${t('backup.done')} · ${tn('backup.skipped', incoming.skipped)}` : t('backup.done'),
+    duration: incoming.skipped ? 5000 : 2500,
+  });
   render();
 }

@@ -1,7 +1,7 @@
 // Service Worker: App-Dateien offline verfügbar machen
 // Bei jeder Änderung CACHE erhöhen (gleich wie APP_VERSION in js/version.js)
 // und neue Dateien unten eintragen.
-const CACHE = 'drinkinggames-v1.4.0';
+const CACHE = 'drinkinggames-v1.4.1';
 
 const CORE = [
   './',

@@ -150,6 +150,21 @@ test('„Party-Mix“: je 40 Karten pro Kategorie, gültige Typen, Regeln mit En
   }
 });
 
+test('Content Security Policy: nur eigene Skripte, keine externen Quellen', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const csp = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+  assert.ok(csp, 'CSP-Meta-Tag fehlt');
+  const rules = Object.fromEntries(csp.split(';').map((r) => r.trim().split(/\s+/)).map(([k, ...v]) => [k, v]));
+  assert.deepEqual(rules['script-src'], ["'self'"]);
+  assert.deepEqual(rules['object-src'], ["'none'"]);
+  assert.ok(!csp.includes('unsafe-eval'));
+  assert.ok(!/https?:/.test(csp), 'keine externen Adressen');
+  // Die CSP muss vor allen Skripten und Stylesheets stehen
+  assert.ok(html.indexOf('Content-Security-Policy') < html.indexOf('<script'));
+  assert.ok(html.indexOf('Content-Security-Policy') < html.indexOf('stylesheet'));
+  assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), 'keine Inline-Skripte');
+});
+
 test('Service Worker: Cache-Name passt zu APP_VERSION und alle App-Dateien sind eingetragen', () => {
   const sw = readFileSync(join(root, 'sw.js'), 'utf8');
   const version = readFileSync(join(root, 'js/version.js'), 'utf8').match(/APP_VERSION = '([^']+)'/)[1];

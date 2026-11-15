@@ -96,7 +96,9 @@ on('Runtime.exceptionThrown', (p) => problems.push('Fehler: ' + (p.exceptionDeta
 on('Runtime.consoleAPICalled', (p) => {
   if (p.type === 'error') problems.push('Konsole: ' + p.args.map((a) => a.value ?? a.description).join(' '));
 });
+let expectCspViolation = false; // während der CSP-Gegenprobe ist ein Verstoß gewollt
 on('Log.entryAdded', (p) => {
+  if (expectCspViolation && /Content Security Policy/.test(p.entry.text)) return;
   if (p.entry.level === 'error' && !/favicon/.test(p.entry.url || '')) problems.push(`Log: ${p.entry.text} ${p.entry.url || ''}`);
 });
 
@@ -131,6 +133,10 @@ try {
   await send('Runtime.enable');
   await send('Page.enable');
   await send('Log.enable');
+  // Verstöße gegen die Content Security Policy mitschreiben
+  await send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `document.addEventListener('securitypolicyviolation', (e) => (window.__csp ||= []).push(e.violatedDirective + ' ' + e.blockedURI));`,
+  });
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: arg('--dark') ? 'dark' : 'light' }] });
 
@@ -355,6 +361,23 @@ try {
   if (!(await evaluate('document.getElementById("app").dataset.view === "end"'))) problems.push('Party-Mix: Ende nicht erreicht');
   await shot('24-partymix-ende');
   await click('[data-act=hub]');
+
+  const csp = await evaluate('window.__csp || []');
+  if (csp.length) problems.push(`CSP-Verstöße: ${[...new Set(csp)].join(', ')}`);
+  else log('Keine CSP-Verstöße');
+  // Gegenprobe: Ein eingeschleustes Inline-Skript muss blockiert werden
+  expectCspViolation = true;
+  const blocked = await evaluate(`(async () => {
+    const s = document.createElement('script');
+    s.textContent = 'window.__injected = true';
+    document.body.appendChild(s);
+    await new Promise((r) => setTimeout(r, 100));
+    return !window.__injected && (window.__csp || []).some((v) => v.startsWith('script-src'));
+  })()`);
+  await sleep(200);
+  expectCspViolation = false;
+  if (!blocked) problems.push('CSP blockiert eingeschleuste Inline-Skripte nicht');
+  else log('CSP blockiert eingeschleuste Inline-Skripte');
 
   // Offline: Server stoppen und neu laden
   if (server) {

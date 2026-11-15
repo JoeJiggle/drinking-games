@@ -139,6 +139,13 @@ node scripts/check-pwa.mjs      → Headless-Edge: Service Worker, Spielablauf, 
 node scripts/make-icons.mjs     → App-Symbole neu erzeugen
 ```
 
+## Sicherheit
+
+- **Content Security Policy** per Meta-Tag in `index.html` (GitHub Pages sendet selbst keine): nur eigene Skripte, keine Inline-Skripte, keine externen Quellen. `'unsafe-inline'` gilt nur für Styles (Kartenfarben als `style`-Attribut). Der Browser-Test prüft, dass es keine Verstöße gibt und eingeschleuste Inline-Skripte blockiert werden.
+- Alles, was Nutzer eingeben oder importieren (Namen, eigene Karten, Sicherungen), wird vor der Anzeige maskiert.
+- **Import von Sicherungen** (`js/core/backup.js`): höchstens 1 MB, 2000 eigene und 5000 aussortierte Karten; nur bekannte Spiele, Listen und Kategorien; Texte höchstens 240 Zeichen mit gültigen Platzhaltern; unbekannte Felder werden verworfen, Ungültiges übersprungen und gemeldet.
+- Sicherheitskorrekturen immer mit erhöhter Version veröffentlichen (`APP_VERSION` und Cache-Name), damit der Service Worker sie ausliefert.
+
 ## Bibliotheken und Datenquellen
 
 Keine. Alle Kartentexte sind eigene Formulierungen. Der Ordner `vendor/` wird nicht benötigt.

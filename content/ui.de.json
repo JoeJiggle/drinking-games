@@ -129,6 +129,9 @@
   "backup.saved": "Sicherung erstellt",
   "backup.failed": "Sicherung fehlgeschlagen",
   "backup.invalid": "Diese Datei ist keine gültige Schwips-Sicherung.",
+  "backup.skipped.one": "1 ungültiger Eintrag übersprungen",
+  "backup.skipped.other": "{n} ungültige Einträge übersprungen",
+  "custom.err.long": "Der Text ist zu lang (höchstens 240 Zeichen).",
 
   "end.title": "Alle Karten gespielt!",
   "end.quitTitle": "Spiel beendet",

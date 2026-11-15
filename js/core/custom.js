@@ -20,10 +20,13 @@ export function removeHidden(content, isHidden) {
   return Object.fromEntries(Object.entries(content).map(([k, list]) => [k, list.filter((c) => !isHidden(c.id))]));
 }
 
+export const MAX_TEXT = 240;
+
 // Prüft den Text einer eigenen Karte. maxPlayers: wie viele Personen-Platzhalter erlaubt sind (0 = keine)
 export function checkCustomText(text, maxPlayers) {
   const clean = String(text ?? '').trim();
   if (!clean) return 'empty';
+  if (clean.length > MAX_TEXT) return 'long';
   const { maxPlayer, errors } = inspectText(clean);
   if (errors.length || maxPlayer > maxPlayers) return 'placeholder';
   return null;

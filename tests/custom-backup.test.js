@@ -36,11 +36,19 @@ test('Text eigener Karten wird geprüft', () => {
   assert.equal(checkCustomText('Küss {p2}', 2), null);
   assert.equal(checkCustomText('Küss {p3}', 2), 'placeholder');
   assert.equal(checkCustomText('Kaputt {p2', 2), 'placeholder');
+  assert.equal(checkCustomText('x'.repeat(241), 2), 'long');
 });
+
+const allowed = {
+  never: { cats: ['mild', 'party', 'spicy'], lists: { cards: 0 } },
+  truthordare: { cats: ['mild', 'party', 'spicy'], lists: { truths: 2, dares: 2 } },
+};
+const backupOf = (customCards, hiddenCards = []) => JSON.stringify({ app: 'schwips', format: 1, customCards, hiddenCards });
 
 test('Sicherung: erstellen, einlesen, zusammenführen, ersetzen', () => {
   const backup = createBackup({ customCards: mine, hiddenCards: ['never/mild-01'] }, new Date('2026-11-14T12:00:00Z'));
-  const parsed = parseBackup(JSON.stringify(backup));
+  const parsed = parseBackup(JSON.stringify(backup), allowed);
+  assert.equal(parsed.skipped, 0);
   assert.equal(parsed.customCards.length, 2);
 
   const current = { customCards: [mine[0], { ...mine[1], id: 'c-3' }], hiddenCards: ['never/party-02'] };
@@ -53,11 +61,43 @@ test('Sicherung: erstellen, einlesen, zusammenführen, ersetzen', () => {
   assert.deepEqual(replaced.hiddenCards, ['never/mild-01']);
 });
 
-test('ungültige Sicherungen werden abgelehnt, kaputte Einträge aussortiert', () => {
-  assert.throws(() => parseBackup('kein json'));
-  assert.throws(() => parseBackup('{"app":"andere"}'));
-  assert.throws(() => parseBackup('{"app":"schwips","format":99}'));
-  const parsed = parseBackup(JSON.stringify({ app: 'schwips', format: 1, customCards: [mine[0], { id: 5 }], hiddenCards: ['x', 3] }));
-  assert.equal(parsed.customCards.length, 1);
-  assert.deepEqual(parsed.hiddenCards, ['x']);
+test('ungültige Sicherungen werden abgelehnt', () => {
+  assert.throws(() => parseBackup('kein json', allowed));
+  assert.throws(() => parseBackup('{"app":"andere"}', allowed));
+  assert.throws(() => parseBackup('{"app":"schwips","format":99}', allowed));
+  assert.throws(() => parseBackup('{"app":"schwips","format":0}', allowed));
+  assert.throws(() => parseBackup(backupOf([]) + ' '.repeat(1_000_001), allowed), 'zu große Datei');
+});
+
+test('Import übernimmt nur gültige Karten mit bekannten Spielen, Listen und Kategorien', () => {
+  const card = (patch) => ({ ...mine[1], id: 'c-' + Math.random().toString(36).slice(2, 8), ...patch });
+  const parsed = parseBackup(
+    backupOf([
+      mine[0],
+      { id: 5 },
+      card({ game: 'unbekannt' }),
+      card({ list: 'cards' }), // gibt es bei Wahrheit oder Pflicht nicht
+      card({ cat: 'extrem' }),
+      card({ text: 'x'.repeat(241) }),
+      card({ text: '{p3} macht etwas' }),
+      card({ game: 'never', list: 'cards', text: 'Ich hab noch nie {p1} …' }), // keine Namen erlaubt
+      card({ id: 'böse<script>' }),
+      { ...mine[0] }, // doppelte id
+      card({ text: '  Gültig  ', extra: '<img src=x onerror=alert(1)>' }),
+    ]),
+    allowed,
+  );
+  assert.deepEqual(parsed.customCards.map((c) => c.id).slice(0, 1), ['c-1']);
+  assert.equal(parsed.customCards.length, 2);
+  const valid = parsed.customCards[1];
+  assert.equal(valid.text, 'Gültig');
+  assert.deepEqual(Object.keys(valid).sort(), ['cat', 'game', 'id', 'list', 'text'], 'unbekannte Felder werden verworfen');
+  assert.equal(parsed.skipped, 9);
+});
+
+test('Import begrenzt die Anzahl und prüft aussortierte Karten', () => {
+  const many = Array.from({ length: 2500 }, (_, i) => ({ id: `c-${i}`, game: 'never', list: 'cards', cat: 'mild', text: `Karte ${i}` }));
+  assert.equal(parseBackup(backupOf(many), allowed).customCards.length, 2000);
+  const parsed = parseBackup(backupOf([], ['never/mild-01', 'never/mild-01', 'x', 3, 'fremd/mild-01', 'never/<b>', 'truthordare/d-party-02']), allowed);
+  assert.deepEqual(parsed.hiddenCards, ['never/mild-01', 'truthordare/d-party-02']);
 });

@@ -129,6 +129,9 @@
   "backup.saved": "Backup saved",
   "backup.failed": "Backup failed",
   "backup.invalid": "This file isn't a valid Schwips backup.",
+  "backup.skipped.one": "1 invalid entry skipped",
+  "backup.skipped.other": "{n} invalid entries skipped",
+  "custom.err.long": "The text is too long (240 characters max).",
 
   "end.title": "That's all the cards!",
   "end.quitTitle": "Game over",
